@@ -1,4 +1,5 @@
 ﻿using BrightIdeasSoftware;
+using Ionic.Zip;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -7,9 +8,11 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Xml.Linq;
 using TVDb.Properties;
 
 namespace TVDb
@@ -18,9 +21,22 @@ namespace TVDb
     {
         private ListViewColumnSorter lvwColumnSorter;
         SQLiteDatabase db;
+        AlertDialog alert;
         public MainForm()
         {
             InitializeComponent();
+            this.olvColumn2.Width = Properties.Settings.Default.EpisodeListEpisodeNameColumnWidth;
+             this.olvColumn4.Width = Properties.Settings.Default.EpisodeListSeasonColumnWidth;
+            this.olvColumn1.Width = Properties.Settings.Default.EpisodeListEpisodeNumberColumnWidth;
+            this.olvColumn3.Width = Properties.Settings.Default.EpisodeListAiredColumnWidth;
+            this.olvColumn5.Width = Properties.Settings.Default.EpisodeListRatingColumnWidth;
+            this.olvColumn6.Width = Properties.Settings.Default.EpisodeListEpisodeIdColumnWidth;
+            this.seriesName.Width = Properties.Settings.Default.ShowsListSeriesNameColumnWidth;
+            this.firstAired.Width = Properties.Settings.Default.ShowsListFirstAiredColumnWidth;
+            this.network.Width = Properties.Settings.Default.ShowsListNetworkColumnWidth;
+            this.rating.Width = Properties.Settings.Default.ShowsListRatingColumnWidth;
+            this.status.Width = Properties.Settings.Default.ShowsListStatusColumnWidth;
+            this.runtime.Width = Properties.Settings.Default.ShowsListRuntimeColumnWidth;
             lvwColumnSorter = new ListViewColumnSorter();
             this.showsList.ListViewItemSorter = lvwColumnSorter;
         }
@@ -68,7 +84,43 @@ namespace TVDb
             {
                 createDatabase();
             }
-            
+            checkUpdate(); 
+
+        }
+
+        /*private class ShowsForUpdate
+        {
+            public string name {get; set;}
+            public string id {get; set;}
+        }*/
+
+        private void checkUpdate()
+        {
+            DataTable dt;
+            String query = "SELECT * FROM series";
+            dt = db.GetDataTable(query);
+            List<string> shows = new List<string>();
+            for (int i = 0; i < dt.Rows.Count; i++)
+            {
+                DataRow drow = dt.Rows[i];
+                 DateTime date;
+                 if (DateTime.TryParse(drow["updated"].ToString(), out date))
+                 {
+                     if ((DateTime.Now - DateTime.Parse(drow["updated"].ToString())).Days > 15)
+                         shows.Add(drow["series_name"].ToString());
+                 }
+            }
+            if(shows.Count > 0){
+                StringBuilder b = new StringBuilder();
+                for (int i = 0; i < shows.Count; i++ )
+                {
+                    if (i != shows.Count - 1)
+                        b.Append(shows[i] + ", ");
+                    else
+                        b.Append(shows[i]);
+                }
+                MessageBox.Show("Following Shows havent been updated for more than 15 days:\n"+b.ToString());
+            }
 
         }
 
@@ -148,7 +200,7 @@ namespace TVDb
                 e.Add(new EpisodeListEntry(drow["episode_name"].ToString(), int.Parse(drow["episode"].ToString()), int.Parse(drow["season"].ToString()), double.Parse(drow["rating"].ToString()), drow["first_aired"].ToString(), bool.Parse(drow["watched"].ToString()), int.Parse(drow["episode_id"].ToString())));
                 }
             }
-            
+            e.Reverse();
             this.objectListView1.SetObjects(e);
         }
         
@@ -223,6 +275,7 @@ namespace TVDb
                     {
                         db.Delete("series", "series_id=" + showsList.SelectedItems[0].SubItems[6].Text);
                         db.ExecuteNonQuery("DROP TABLE IF EXISTS episodes_" + showsList.SelectedItems[0].SubItems[6].Text);
+                        db.ExecuteNonQuery("DROP TABLE IF EXISTS arts_" + showsList.SelectedItems[0].SubItems[6].Text);
                     }
                     catch (Exception ex)
                     {
@@ -232,41 +285,7 @@ namespace TVDb
                 }
                 
             }
-            else if (e.ClickedItem.Text == "View Poster")
-            {
-                try
-                {
-                    Process.Start(@"res\" + showsList.SelectedItems[0].Text + "_poster.jpg");
-                    
-                }
-                catch(Exception ex){
-                    MessageBox.Show(ex.Message);
-                }
-            }
-            else if (e.ClickedItem.Text == "View Banner")
-            {
-                try
-                {
-                    Process.Start(@"res\" + showsList.SelectedItems[0].Text + "_banner.jpg");
-
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show(ex.Message);
-                }
-            }
-            else if (e.ClickedItem.Text == "View Fanart")
-            {
-                try
-                {
-                    Process.Start(@"res\" + showsList.SelectedItems[0].Text + "_fanart.jpg");
-
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show(ex.Message);
-                }
-            }
+            
             
               
 
@@ -443,7 +462,7 @@ namespace TVDb
                 hideFromListToolStripMenuItem.Text = "Show in List";
 
             if (drow["ignore_agenda"].ToString() == "False")
-                ignoreInAgendaToolStripMenuItem.Text = "Ignore in Agenda";
+                ignoreInAgendaToolStripMenuItem.Text = "Exclude from Agenda";
             else
                 ignoreInAgendaToolStripMenuItem.Text = "Include in Agenda";
             
@@ -472,5 +491,161 @@ namespace TVDb
         }
 
         
+
+        private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+                Properties.Settings.Default.ShowsListSeriesNameColumnWidth = seriesName.Width;
+                Properties.Settings.Default.ShowsListFirstAiredColumnWidth = firstAired.Width;
+                Properties.Settings.Default.ShowsListNetworkColumnWidth = network.Width;
+                Properties.Settings.Default.ShowsListRatingColumnWidth = rating.Width;
+                Properties.Settings.Default.ShowsListStatusColumnWidth = status.Width;
+                Properties.Settings.Default.ShowsListRuntimeColumnWidth = runtime.Width;
+                Properties.Settings.Default.EpisodeListEpisodeNameColumnWidth = olvColumn2.Width;
+                Properties.Settings.Default.EpisodeListSeasonColumnWidth = olvColumn4.Width;
+                Properties.Settings.Default.EpisodeListEpisodeNumberColumnWidth = olvColumn1.Width;
+                Properties.Settings.Default.EpisodeListAiredColumnWidth = olvColumn3.Width;
+                Properties.Settings.Default.EpisodeListRatingColumnWidth = olvColumn5.Width;
+                Properties.Settings.Default.EpisodeListEpisodeIdColumnWidth = olvColumn6.Width;
+                Properties.Settings.Default.Save();
+        }
+
+        private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            new About().ShowDialog();
+        }
+
+        private void updateToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.Cursor = System.Windows.Forms.Cursors.WaitCursor;
+            UpdateShows(showsList.SelectedItems[0].SubItems[6].Text);
+            this.Cursor = System.Windows.Forms.Cursors.Default;
+            updateEpisodesList("episodes_" + showsList.SelectedItems[0].SubItems[6].Text);
+        }
+
+        private double getRating(XElement e)
+        {
+
+            try
+            {
+                return (double)e.Element("Rating");
+            }
+            catch (Exception ex)
+            {
+                return 0.0;
+            }
+        }
+
+        private void UpdateShows(string sId) {
+            string seriesId = sId;
+            DataTable dt;
+            String query = "SELECT * FROM series WHERE series_id=" + seriesId;
+            dt = db.GetDataTable(query);
+            DataRow drow = dt.Rows[0];
+            if (!System.IO.Directory.Exists("temp"))
+            {
+                System.IO.Directory.CreateDirectory("temp");
+            }
+            if (!System.IO.Directory.Exists("res"))
+            {
+                System.IO.Directory.CreateDirectory("res");
+            }
+
+            WebClient Client = new WebClient();
+            Client.DownloadFile("http://thetvdb.com/api/" + Constants.api_key + "/series/" + seriesId + "/all/" + drow["language"].ToString() + ".zip",
+                @"temp/tmp.zip");
+
+            using (ZipFile zip = ZipFile.Read("temp/tmp.zip"))
+            {
+                zip.ExtractAll("temp/");
+            }
+
+            XDocument doc = XDocument.Load("temp/en.xml");
+
+            // var names = doc.Descendants("Series");
+            var names = from ele in doc.Descendants("Episode")
+                        select new
+                        {
+                            episodeName = (string)ele.Element("EpisodeName") ?? string.Empty,
+                            episode = (int)ele.Element("EpisodeNumber"),
+                            season = (int)ele.Element("SeasonNumber"),
+                            firstAired = (string)ele.Element("FirstAired") ?? string.Empty,
+                            imdbId = (string)ele.Element("IMDB_ID") ?? string.Empty,
+                            overview = (string)ele.Element("Overview") ?? string.Empty,
+                            rating = getRating(ele),
+                            episodeId = (int)ele.Element("id")
+                        };
+
+            foreach (var n in names)
+            {
+                try
+                {
+
+                    if (db.EpisodeExists(seriesId, n.episodeId.ToString()))
+                    {
+                        db.UpdateEpisode(seriesId, n.episodeId.ToString(), n.episodeName, n.overview, n.firstAired, n.rating.ToString());
+                    }
+                    else
+                    {
+                        EpisodeDatabaseEntry edb = new EpisodeDatabaseEntry(n.episodeName, n.episode, n.season, n.rating, n.firstAired, n.imdbId, n.overview, false, n.episodeId);
+                        db.InsertEpisode("episodes_" + seriesId, edb);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message);
+                }
+
+            }
+            db.UpdateDate(seriesId, DateTime.Now.ToString());
+                
+            Directory.Delete(@"temp", true);
+        }
+
+        private void updateAllShowsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (backgroundWorker1.IsBusy != true)
+            {
+                this.Cursor = System.Windows.Forms.Cursors.WaitCursor;
+                alert = new AlertDialog();
+                alert.Show();
+                // Start the asynchronous operation.
+                backgroundWorker1.RunWorkerAsync();
+            }
+            
+            
+            
+            
+        }
+
+        private void backgroundWorker1_DoWork(object sender, DoWorkEventArgs e)
+        {
+            
+            BackgroundWorker worker = sender as BackgroundWorker;
+            DataTable dt;
+            String query = "SELECT * FROM series";
+            dt = db.GetDataTable(query);
+            int count = dt.Rows.Count;
+            for (int i = 0; i < count; i++)
+            {
+                worker.ReportProgress((int)((double)(i + 1) / (double)count * 100.0), (dt.Rows[i])["series_name"].ToString() +" "+ (i+1) + "/" + count);
+                UpdateShows((dt.Rows[i])["series_id"].ToString());
+            }
+            
+            
+        }
+
+        private void backgroundWorker1_ProgressChanged(object sender, ProgressChangedEventArgs e)
+        {
+            alert.setLabels("Please wait", "Updating:", (string)e.UserState);
+            alert.setProgress(e.ProgressPercentage);
+        }
+
+        private void backgroundWorker1_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            alert.Close();
+            this.Cursor = System.Windows.Forms.Cursors.Default;
+            updateEpisodesList("episodes_" + showsList.SelectedItems[0].SubItems[6].Text);
+        }
+
     }
 }

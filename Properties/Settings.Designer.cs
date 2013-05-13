@@ -46,5 +46,185 @@ namespace TVDb.Properties {
                 this["ShowHidden"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("127")]
+        public int ShowsListSeriesNameColumnWidth {
+            get {
+                return ((int)(this["ShowsListSeriesNameColumnWidth"]));
+            }
+            set {
+                this["ShowsListSeriesNameColumnWidth"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("70")]
+        public int ShowsListFirstAiredColumnWidth {
+            get {
+                return ((int)(this["ShowsListFirstAiredColumnWidth"]));
+            }
+            set {
+                this["ShowsListFirstAiredColumnWidth"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("60")]
+        public int ShowsListNetworkColumnWidth {
+            get {
+                return ((int)(this["ShowsListNetworkColumnWidth"]));
+            }
+            set {
+                this["ShowsListNetworkColumnWidth"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("70")]
+        public int ShowsListStatusColumnWidth {
+            get {
+                return ((int)(this["ShowsListStatusColumnWidth"]));
+            }
+            set {
+                this["ShowsListStatusColumnWidth"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("60")]
+        public int ShowsListRatingColumnWidth {
+            get {
+                return ((int)(this["ShowsListRatingColumnWidth"]));
+            }
+            set {
+                this["ShowsListRatingColumnWidth"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("60")]
+        public int ShowsListRuntimeColumnWidth {
+            get {
+                return ((int)(this["ShowsListRuntimeColumnWidth"]));
+            }
+            set {
+                this["ShowsListRuntimeColumnWidth"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("151")]
+        public int EpisodeListEpisodeNameColumnWidth {
+            get {
+                return ((int)(this["EpisodeListEpisodeNameColumnWidth"]));
+            }
+            set {
+                this["EpisodeListEpisodeNameColumnWidth"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("70")]
+        public int EpisodeListAiredColumnWidth {
+            get {
+                return ((int)(this["EpisodeListAiredColumnWidth"]));
+            }
+            set {
+                this["EpisodeListAiredColumnWidth"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("60")]
+        public int EpisodeListEpisodeNumberColumnWidth {
+            get {
+                return ((int)(this["EpisodeListEpisodeNumberColumnWidth"]));
+            }
+            set {
+                this["EpisodeListEpisodeNumberColumnWidth"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("60")]
+        public int EpisodeListSeasonColumnWidth {
+            get {
+                return ((int)(this["EpisodeListSeasonColumnWidth"]));
+            }
+            set {
+                this["EpisodeListSeasonColumnWidth"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("60")]
+        public int EpisodeListRatingColumnWidth {
+            get {
+                return ((int)(this["EpisodeListRatingColumnWidth"]));
+            }
+            set {
+                this["EpisodeListRatingColumnWidth"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("60")]
+        public int EpisodeListEpisodeIdColumnWidth {
+            get {
+                return ((int)(this["EpisodeListEpisodeIdColumnWidth"]));
+            }
+            set {
+                this["EpisodeListEpisodeIdColumnWidth"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("150")]
+        public int test {
+            get {
+                return ((int)(this["test"]));
+            }
+            set {
+                this["test"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("55")]
+        public int test2 {
+            get {
+                return ((int)(this["test2"]));
+            }
+            set {
+                this["test2"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("77")]
+        public int test3 {
+            get {
+                return ((int)(this["test3"]));
+            }
+            set {
+                this["test3"] = value;
+            }
+        }
     }
 }

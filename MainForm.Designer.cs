@@ -29,7 +29,7 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.ListViewItem listViewItem2 = new System.Windows.Forms.ListViewItem("No Shows");
+            System.Windows.Forms.ListViewItem listViewItem1 = new System.Windows.Forms.ListViewItem("No Shows");
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.searchBox = new System.Windows.Forms.TextBox();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
@@ -42,8 +42,8 @@
             this.status = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.runtime = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.deleteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.updateToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.hideFromListToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.ignoreInAgendaToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.posterToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.splitContainer2 = new System.Windows.Forms.SplitContainer();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
@@ -60,8 +60,11 @@
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.overview = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
-            this.banner = new System.Windows.Forms.PictureBox();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
+            this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
+            this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
+            this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
+            this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.wipeDatabaseToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.backupDatabaseToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -69,11 +72,12 @@
             this.toolsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.settingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.upcomingEpisodesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
-            this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
-            this.pictureBox1 = new System.Windows.Forms.PictureBox();
-            this.hideFromListToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.ignoreInAgendaToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.updateAllShowsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.deleteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.updateToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.banner = new System.Windows.Forms.PictureBox();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -88,9 +92,9 @@
             ((System.ComponentModel.ISupportInitialize)(this.objectListView1)).BeginInit();
             this.contextMenuStrip2.SuspendLayout();
             this.groupBox3.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.banner)).BeginInit();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.banner)).BeginInit();
             this.SuspendLayout();
             // 
             // searchBox
@@ -151,7 +155,7 @@
             this.showsList.ContextMenuStrip = this.contextMenuStrip1;
             this.showsList.FullRowSelect = true;
             this.showsList.Items.AddRange(new System.Windows.Forms.ListViewItem[] {
-            listViewItem2});
+            listViewItem1});
             this.showsList.Location = new System.Drawing.Point(7, 19);
             this.showsList.MultiSelect = false;
             this.showsList.Name = "showsList";
@@ -165,7 +169,6 @@
             // seriesName
             // 
             this.seriesName.Text = "Series Name";
-            this.seriesName.Width = 127;
             // 
             // firstAired
             // 
@@ -196,24 +199,23 @@
             this.ignoreInAgendaToolStripMenuItem,
             this.posterToolStripMenuItem});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(234, 136);
+            this.contextMenuStrip1.Size = new System.Drawing.Size(234, 114);
             this.contextMenuStrip1.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuStrip1_Opening);
             this.contextMenuStrip1.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.contextMenuStrip1_ItemClicked);
             // 
-            // deleteToolStripMenuItem
+            // hideFromListToolStripMenuItem
             // 
-            this.deleteToolStripMenuItem.Image = global::TVDb.Properties.Resources.exclude_active;
-            this.deleteToolStripMenuItem.Name = "deleteToolStripMenuItem";
-            this.deleteToolStripMenuItem.Size = new System.Drawing.Size(233, 22);
-            this.deleteToolStripMenuItem.Text = "Delete";
+            this.hideFromListToolStripMenuItem.Name = "hideFromListToolStripMenuItem";
+            this.hideFromListToolStripMenuItem.Size = new System.Drawing.Size(233, 22);
+            this.hideFromListToolStripMenuItem.Text = "Hide From List";
+            this.hideFromListToolStripMenuItem.Click += new System.EventHandler(this.hideFromListToolStripMenuItem_Click);
             // 
-            // updateToolStripMenuItem
+            // ignoreInAgendaToolStripMenuItem
             // 
-            this.updateToolStripMenuItem.Enabled = false;
-            this.updateToolStripMenuItem.Image = global::TVDb.Properties.Resources.reload;
-            this.updateToolStripMenuItem.Name = "updateToolStripMenuItem";
-            this.updateToolStripMenuItem.Size = new System.Drawing.Size(233, 22);
-            this.updateToolStripMenuItem.Text = "Update";
+            this.ignoreInAgendaToolStripMenuItem.Name = "ignoreInAgendaToolStripMenuItem";
+            this.ignoreInAgendaToolStripMenuItem.Size = new System.Drawing.Size(233, 22);
+            this.ignoreInAgendaToolStripMenuItem.Text = "Ignore In Agenda";
+            this.ignoreInAgendaToolStripMenuItem.Click += new System.EventHandler(this.ignoreInAgendaToolStripMenuItem_Click);
             // 
             // posterToolStripMenuItem
             // 
@@ -294,7 +296,6 @@
             this.olvColumn2.Sortable = false;
             this.olvColumn2.Text = "Episode Name";
             this.olvColumn2.UseInitialLetterForGroup = true;
-            this.olvColumn2.Width = 154;
             // 
             // olvColumn4
             // 
@@ -318,7 +319,6 @@
             this.olvColumn3.DisplayIndex = 1;
             this.olvColumn3.Sortable = false;
             this.olvColumn3.Text = "Aired";
-            this.olvColumn3.Width = 88;
             // 
             // olvColumn5
             // 
@@ -391,31 +391,48 @@
             this.label1.TabIndex = 1;
             this.label1.Text = "Overview";
             // 
-            // banner
-            // 
-            this.banner.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.banner.Cursor = System.Windows.Forms.Cursors.Default;
-            this.banner.InitialImage = null;
-            this.banner.Location = new System.Drawing.Point(7, 20);
-            this.banner.Name = "banner";
-            this.banner.Size = new System.Drawing.Size(393, 74);
-            this.banner.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-            this.banner.TabIndex = 0;
-            this.banner.TabStop = false;
-            this.banner.Click += new System.EventHandler(this.banner_Click);
-            // 
             // menuStrip1
             // 
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.fileToolStripMenuItem,
-            this.toolsToolStripMenuItem});
+            this.toolsToolStripMenuItem,
+            this.helpToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Size = new System.Drawing.Size(866, 24);
             this.menuStrip1.TabIndex = 4;
             this.menuStrip1.Text = "menuStrip1";
+            // 
+            // saveFileDialog1
+            // 
+            this.saveFileDialog1.Filter = "SQLite Database(\"*.db\")|*.db";
+            this.saveFileDialog1.FileOk += new System.ComponentModel.CancelEventHandler(this.saveFileDialog1_FileOk);
+            // 
+            // openFileDialog1
+            // 
+            this.openFileDialog1.FileName = "tvdb.db";
+            this.openFileDialog1.Filter = "SQLite Database(\"*.db\")|*.db";
+            this.openFileDialog1.FileOk += new System.ComponentModel.CancelEventHandler(this.openFileDialog1_FileOk);
+            // 
+            // backgroundWorker1
+            // 
+            this.backgroundWorker1.WorkerReportsProgress = true;
+            this.backgroundWorker1.DoWork += new System.ComponentModel.DoWorkEventHandler(this.backgroundWorker1_DoWork);
+            this.backgroundWorker1.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.backgroundWorker1_ProgressChanged);
+            this.backgroundWorker1.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.backgroundWorker1_RunWorkerCompleted);
+            // 
+            // pictureBox1
+            // 
+            this.pictureBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.pictureBox1.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.pictureBox1.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox1.Image")));
+            this.pictureBox1.Location = new System.Drawing.Point(831, 14);
+            this.pictureBox1.Name = "pictureBox1";
+            this.pictureBox1.Size = new System.Drawing.Size(23, 20);
+            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.pictureBox1.TabIndex = 2;
+            this.pictureBox1.TabStop = false;
+            this.pictureBox1.Click += new System.EventHandler(this.pictureBox1_Click);
             // 
             // fileToolStripMenuItem
             // 
@@ -423,8 +440,9 @@
             this.wipeDatabaseToolStripMenuItem,
             this.backupDatabaseToolStripMenuItem,
             this.restoreDatabaseToolStripMenuItem});
+            this.fileToolStripMenuItem.Image = global::TVDb.Properties.Resources.shortcut_folder;
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
-            this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
+            this.fileToolStripMenuItem.Size = new System.Drawing.Size(53, 20);
             this.fileToolStripMenuItem.Text = "File";
             // 
             // wipeDatabaseToolStripMenuItem
@@ -455,63 +473,81 @@
             // 
             this.toolsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.settingsToolStripMenuItem,
-            this.upcomingEpisodesToolStripMenuItem});
+            this.upcomingEpisodesToolStripMenuItem,
+            this.updateAllShowsToolStripMenuItem});
+            this.toolsToolStripMenuItem.Image = global::TVDb.Properties.Resources.shortcut_appdrawer;
             this.toolsToolStripMenuItem.Name = "toolsToolStripMenuItem";
-            this.toolsToolStripMenuItem.Size = new System.Drawing.Size(48, 20);
+            this.toolsToolStripMenuItem.Size = new System.Drawing.Size(64, 20);
             this.toolsToolStripMenuItem.Text = "Tools";
             // 
             // settingsToolStripMenuItem
             // 
             this.settingsToolStripMenuItem.Image = global::TVDb.Properties.Resources.settings;
             this.settingsToolStripMenuItem.Name = "settingsToolStripMenuItem";
-            this.settingsToolStripMenuItem.Size = new System.Drawing.Size(116, 22);
+            this.settingsToolStripMenuItem.Size = new System.Drawing.Size(166, 22);
             this.settingsToolStripMenuItem.Text = "Settings";
             this.settingsToolStripMenuItem.Click += new System.EventHandler(this.settingsToolStripMenuItem_Click);
             // 
             // upcomingEpisodesToolStripMenuItem
             // 
             this.upcomingEpisodesToolStripMenuItem.Name = "upcomingEpisodesToolStripMenuItem";
-            this.upcomingEpisodesToolStripMenuItem.Size = new System.Drawing.Size(116, 22);
+            this.upcomingEpisodesToolStripMenuItem.Size = new System.Drawing.Size(166, 22);
             this.upcomingEpisodesToolStripMenuItem.Text = "Agenda";
             this.upcomingEpisodesToolStripMenuItem.Click += new System.EventHandler(this.upcomingEpisodesToolStripMenuItem_Click);
             // 
-            // saveFileDialog1
+            // updateAllShowsToolStripMenuItem
             // 
-            this.saveFileDialog1.Filter = "SQLite Database(\"*.db\")|*.db";
-            this.saveFileDialog1.FileOk += new System.ComponentModel.CancelEventHandler(this.saveFileDialog1_FileOk);
+            this.updateAllShowsToolStripMenuItem.Name = "updateAllShowsToolStripMenuItem";
+            this.updateAllShowsToolStripMenuItem.Size = new System.Drawing.Size(166, 22);
+            this.updateAllShowsToolStripMenuItem.Text = "Update All Shows";
+            this.updateAllShowsToolStripMenuItem.Click += new System.EventHandler(this.updateAllShowsToolStripMenuItem_Click);
             // 
-            // openFileDialog1
+            // helpToolStripMenuItem
             // 
-            this.openFileDialog1.FileName = "tvdb.db";
-            this.openFileDialog1.Filter = "SQLite Database(\"*.db\")|*.db";
-            this.openFileDialog1.FileOk += new System.ComponentModel.CancelEventHandler(this.openFileDialog1_FileOk);
+            this.helpToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.aboutToolStripMenuItem});
+            this.helpToolStripMenuItem.Image = global::TVDb.Properties.Resources.help;
+            this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
+            this.helpToolStripMenuItem.Size = new System.Drawing.Size(60, 20);
+            this.helpToolStripMenuItem.Text = "Help";
             // 
-            // pictureBox1
+            // aboutToolStripMenuItem
             // 
-            this.pictureBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.pictureBox1.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.pictureBox1.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox1.Image")));
-            this.pictureBox1.Location = new System.Drawing.Point(831, 14);
-            this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(23, 20);
-            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
-            this.pictureBox1.TabIndex = 2;
-            this.pictureBox1.TabStop = false;
-            this.pictureBox1.Click += new System.EventHandler(this.pictureBox1_Click);
+            this.aboutToolStripMenuItem.Image = global::TVDb.Properties.Resources.info;
+            this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
+            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(107, 22);
+            this.aboutToolStripMenuItem.Text = "About";
+            this.aboutToolStripMenuItem.Click += new System.EventHandler(this.aboutToolStripMenuItem_Click);
             // 
-            // hideFromListToolStripMenuItem
+            // deleteToolStripMenuItem
             // 
-            this.hideFromListToolStripMenuItem.Name = "hideFromListToolStripMenuItem";
-            this.hideFromListToolStripMenuItem.Size = new System.Drawing.Size(233, 22);
-            this.hideFromListToolStripMenuItem.Text = "Hide From List";
-            this.hideFromListToolStripMenuItem.Click += new System.EventHandler(this.hideFromListToolStripMenuItem_Click);
+            this.deleteToolStripMenuItem.Image = global::TVDb.Properties.Resources.exclude_active;
+            this.deleteToolStripMenuItem.Name = "deleteToolStripMenuItem";
+            this.deleteToolStripMenuItem.Size = new System.Drawing.Size(233, 22);
+            this.deleteToolStripMenuItem.Text = "Delete";
             // 
-            // ignoreInAgendaToolStripMenuItem
+            // updateToolStripMenuItem
             // 
-            this.ignoreInAgendaToolStripMenuItem.Name = "ignoreInAgendaToolStripMenuItem";
-            this.ignoreInAgendaToolStripMenuItem.Size = new System.Drawing.Size(233, 22);
-            this.ignoreInAgendaToolStripMenuItem.Text = "Ignore In Agenda";
-            this.ignoreInAgendaToolStripMenuItem.Click += new System.EventHandler(this.ignoreInAgendaToolStripMenuItem_Click);
+            this.updateToolStripMenuItem.Image = global::TVDb.Properties.Resources.reload;
+            this.updateToolStripMenuItem.Name = "updateToolStripMenuItem";
+            this.updateToolStripMenuItem.Size = new System.Drawing.Size(233, 22);
+            this.updateToolStripMenuItem.Text = "Update";
+            this.updateToolStripMenuItem.Click += new System.EventHandler(this.updateToolStripMenuItem_Click);
+            // 
+            // banner
+            // 
+            this.banner.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.banner.Cursor = System.Windows.Forms.Cursors.Default;
+            this.banner.InitialImage = null;
+            this.banner.Location = new System.Drawing.Point(7, 20);
+            this.banner.Name = "banner";
+            this.banner.Size = new System.Drawing.Size(393, 74);
+            this.banner.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.banner.TabIndex = 0;
+            this.banner.TabStop = false;
+            this.banner.Click += new System.EventHandler(this.banner_Click);
             // 
             // MainForm
             // 
@@ -526,6 +562,7 @@
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "MainForm";
             this.Text = "TVDb";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
             this.Load += new System.EventHandler(this.Form1_Load);
             this.splitContainer1.Panel1.ResumeLayout(false);
             this.splitContainer1.Panel2.ResumeLayout(false);
@@ -542,10 +579,10 @@
             this.contextMenuStrip2.ResumeLayout(false);
             this.groupBox3.ResumeLayout(false);
             this.groupBox3.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.banner)).EndInit();
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.banner)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -596,6 +633,10 @@
         private System.Windows.Forms.OpenFileDialog openFileDialog1;
         private System.Windows.Forms.ToolStripMenuItem hideFromListToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem ignoreInAgendaToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem helpToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem updateAllShowsToolStripMenuItem;
+        private System.ComponentModel.BackgroundWorker backgroundWorker1;
     }
 }
 

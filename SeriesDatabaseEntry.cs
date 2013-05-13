@@ -26,6 +26,7 @@ namespace TVDb
         private string _status;
         private bool _ignore;
         private bool _hide;
+        private string _updated;
 
         public string seriesName { get { return _seriesName; } set { _seriesName = value; } }
         public string firstAired { get { return _firstAired; } set { _firstAired = value; } }
@@ -45,11 +46,12 @@ namespace TVDb
         public string status { get { return _status; } set { _status = value; } }
         public bool ignore { get { return _ignore; } set { _ignore = value; } }
         public bool hide { get { return _hide; } set { _hide = value; } }
+        public string updated { get { return _updated; } set { _updated = value; } }
 
         public SeriesDatabaseEntry(string seriesName, string firstAired, string imdbId, string overview, 
             double rating, int seriesId, string language, string bannerLocal, string bannerUrl,
             string posterLocal, string posterUrl, string fanartLocal, string fanartUrl, string network, 
-            int runtime, string status, bool ignore, bool hide)
+            int runtime, string status, bool ignore, bool hide, string updated)
         {
             this._seriesName = seriesName;
             this._overview = overview;
@@ -69,6 +71,7 @@ namespace TVDb
             this._status = status;
             this._ignore = ignore;
             this._hide = hide;
+            this._updated = updated;
         }
         public SeriesDatabaseEntry()
         {

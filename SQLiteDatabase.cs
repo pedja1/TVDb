@@ -83,6 +83,45 @@ class SQLiteDatabase
         cnn.Close();
         return rowsUpdated;
     }
+    public int UpdateDate(string seriesId, string date)
+    {
+        SQLiteConnection cnn = new SQLiteConnection(dbConnection);
+        cnn.Open();
+        SQLiteCommand mycommand = new SQLiteCommand(cnn);
+        mycommand.CommandText = "UPDATE series SET updated=@date WHERE series_id=" + seriesId;
+        mycommand.Parameters.Add(new SQLiteParameter("@date", date));
+        int rowsUpdated = mycommand.ExecuteNonQuery();
+        cnn.Close();
+        return rowsUpdated;
+    }
+
+    public bool EpisodeExists(string seriesId, string episodeId) {
+        SQLiteConnection cnn = new SQLiteConnection(dbConnection);
+        cnn.Open();
+        SQLiteCommand cmd = new SQLiteCommand(cnn);
+        cmd.CommandText = "SELECT count(*) FROM episodes_"+seriesId+" WHERE episode_id="+episodeId;
+        int count = Convert.ToInt32(cmd.ExecuteScalar());
+        cnn.Close();
+        if (count == 0)
+            return false;
+        else
+            return true;
+    }
+
+    public bool ShowExists(string seriesName)
+    {
+        SQLiteConnection cnn = new SQLiteConnection(dbConnection);
+        cnn.Open();
+        SQLiteCommand cmd = new SQLiteCommand(cnn);
+        cmd.CommandText = "SELECT count(*) FROM series WHERE series_name=@seriesName";
+        cmd.Parameters.Add(new SQLiteParameter("@seriesName", seriesName));
+        int count = Convert.ToInt32(cmd.ExecuteScalar());
+        cnn.Close();
+        if (count == 0)
+            return false;
+        else
+            return true;
+    }
 
     public int InsertEpisode(string tableName, EpisodeDatabaseEntry episode)
     {
@@ -103,29 +142,20 @@ class SQLiteDatabase
         cnn.Close();
         return rowsUpdated;
     }
-   /* public int CreateEpisodesTable(string tableName)
+    public int UpdateEpisode(string seriesId, string episodeId, string episodeName, string overview, string firstAired, string rating)
     {
         SQLiteConnection cnn = new SQLiteConnection(dbConnection);
         cnn.Open();
         SQLiteCommand mycommand = new SQLiteCommand(cnn);
-        mycommand.CommandText = "CREATE TABLE @tableName" + "("
-                        + "_id" + " INTEGER PRIMARY KEY,"
-                        + "episode" + " INTEGER,"
-                        + "season" + " INTEGER,"
-                        + "episode_name" + " TEXT,"
-                        + "first_aired" + " TEXT,"
-                        + "imdb_id" + " TEXT,"
-                        + "overview" + " TEXT,"
-                        + "rating" + " DOUBLE,"
-                        + "episode_id" + " INTEGER,"
-                        + "watched" + " BOOLEAN"
-                        +
-                        ")";
-            mycommand.Parameters.Add(new SQLiteParameter("@tableName", tableName+"episodes"));
+        mycommand.CommandText = "UPDATE episodes_" + seriesId + " SET episode_name=@episodeName, first_aired=@firstAired, overview=@overview, rating=@rating WHERE episode_id=" + episodeId;
+            mycommand.Parameters.Add(new SQLiteParameter("@episodeName", episodeName));
+            mycommand.Parameters.Add(new SQLiteParameter("@overview", overview));
+            mycommand.Parameters.Add(new SQLiteParameter("@rating", rating));
+            mycommand.Parameters.Add(new SQLiteParameter("@firstAired", firstAired));
         int rowsUpdated = mycommand.ExecuteNonQuery();
         cnn.Close();
         return rowsUpdated;
-    }*/
+    }
     /**/
     public int InsertSeries(SeriesDatabaseEntry series)
     {
@@ -133,7 +163,7 @@ class SQLiteDatabase
         cnn.Open();
         SQLiteCommand mycommand = new SQLiteCommand(cnn);
 
-        mycommand.CommandText = "INSERT INTO series (series_name, first_aired, imdb_id, overview, rating, series_id, language, banner_local, banner_url, poster_local, poster_url, fanart_local, fanart_url, network, runtime, status, ignore, hide) VALUES(@series_name, @first_aired, @imdb_id, @overview, @rating, @series_id, @language, @banner_local, @banner_url, @poster_local, @poster_url, @fanart_local, @fanart_url, @network, @runtime, @status, @ignore, @hide);";
+        mycommand.CommandText = "INSERT INTO series (series_name, first_aired, imdb_id, overview, rating, series_id, language, banner_local, banner_url, poster_local, poster_url, fanart_local, fanart_url, network, runtime, status, ignore_agenda, hide_from_list, updated) VALUES(@series_name, @first_aired, @imdb_id, @overview, @rating, @series_id, @language, @banner_local, @banner_url, @poster_local, @poster_url, @fanart_local, @fanart_url, @network, @runtime, @status, @ignore_agenda, @hide, @updated);";
         mycommand.CommandType = CommandType.Text;
         mycommand.Parameters.Add(new SQLiteParameter("@series_name", series.seriesName));
         mycommand.Parameters.Add(new SQLiteParameter("@first_aired", series.firstAired));
@@ -151,8 +181,9 @@ class SQLiteDatabase
         mycommand.Parameters.Add(new SQLiteParameter("@status", series.status));
         mycommand.Parameters.Add(new SQLiteParameter("@network", series.network));
         mycommand.Parameters.Add(new SQLiteParameter("@runtime", series.runtime));
-        mycommand.Parameters.Add(new SQLiteParameter("@ignore", series.ignore));
+        mycommand.Parameters.Add(new SQLiteParameter("@ignore_agenda", series.ignore));
         mycommand.Parameters.Add(new SQLiteParameter("@hide", series.hide));
+        mycommand.Parameters.Add(new SQLiteParameter("@updated", series.updated));
         int rowsUpdated = mycommand.ExecuteNonQuery();
         cnn.Close();
         return rowsUpdated;

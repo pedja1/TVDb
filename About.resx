@@ -117,55 +117,23 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <metadata name="contextMenuStrip1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>17, 17</value>
-  </metadata>
-  <metadata name="contextMenuStrip2.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>287, 17</value>
-  </metadata>
-  <metadata name="menuStrip1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>172, 17</value>
-  </metadata>
-  <metadata name="saveFileDialog1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>442, 17</value>
-  </metadata>
-  <metadata name="openFileDialog1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>578, 17</value>
-  </metadata>
-  <metadata name="backgroundWorker1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>718, 17</value>
-  </metadata>
-  <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
-  <data name="pictureBox1.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
-    <value>
-        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
-</value>
+  <data name="label1.Text" xml:space="preserve">
+    <value>Copyright (C) 2013  Predrag Čokulov
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;</value>
   </data>
+  <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
   <data name="$this.Icon" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         AAABAAYAAAAAAAEAIAB3CwAAZgAAACAgAAABACAAqBAAAN0LAAAwMAAAAQAgAKglAACFHAAAEBAAAAEA

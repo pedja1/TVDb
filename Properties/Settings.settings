@@ -8,5 +8,50 @@
     <Setting Name="ShowHidden" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
+    <Setting Name="ShowsListSeriesNameColumnWidth" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">127</Value>
+    </Setting>
+    <Setting Name="ShowsListFirstAiredColumnWidth" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">70</Value>
+    </Setting>
+    <Setting Name="ShowsListNetworkColumnWidth" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">60</Value>
+    </Setting>
+    <Setting Name="ShowsListStatusColumnWidth" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">70</Value>
+    </Setting>
+    <Setting Name="ShowsListRatingColumnWidth" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">60</Value>
+    </Setting>
+    <Setting Name="ShowsListRuntimeColumnWidth" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">60</Value>
+    </Setting>
+    <Setting Name="EpisodeListEpisodeNameColumnWidth" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">151</Value>
+    </Setting>
+    <Setting Name="EpisodeListAiredColumnWidth" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">70</Value>
+    </Setting>
+    <Setting Name="EpisodeListEpisodeNumberColumnWidth" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">60</Value>
+    </Setting>
+    <Setting Name="EpisodeListSeasonColumnWidth" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">60</Value>
+    </Setting>
+    <Setting Name="EpisodeListRatingColumnWidth" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">60</Value>
+    </Setting>
+    <Setting Name="EpisodeListEpisodeIdColumnWidth" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">60</Value>
+    </Setting>
+    <Setting Name="test" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">150</Value>
+    </Setting>
+    <Setting Name="test2" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">55</Value>
+    </Setting>
+    <Setting Name="test3" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">77</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

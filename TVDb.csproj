@@ -92,11 +92,23 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="About.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="About.Designer.cs">
+      <DependentUpon>About.cs</DependentUpon>
+    </Compile>
     <Compile Include="Agenda.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Agenda.Designer.cs">
       <DependentUpon>Agenda.cs</DependentUpon>
+    </Compile>
+    <Compile Include="AlertDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="AlertDialog.Designer.cs">
+      <DependentUpon>AlertDialog.cs</DependentUpon>
     </Compile>
     <Compile Include="ArtViewer.cs">
       <SubType>Form</SubType>
@@ -141,8 +153,14 @@
     </Compile>
     <Compile Include="Settings1.cs" />
     <Compile Include="SQLiteDatabase.cs" />
+    <EmbeddedResource Include="About.resx">
+      <DependentUpon>About.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Agenda.resx">
       <DependentUpon>Agenda.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="AlertDialog.resx">
+      <DependentUpon>AlertDialog.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="ArtViewer.resx">
       <DependentUpon>ArtViewer.cs</DependentUpon>
@@ -206,6 +224,10 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="1367523666_110994.ico" />
+    <None Include="Resources\shortcut_folder.png" />
+    <None Include="Resources\shortcut_appdrawer.png" />
+    <None Include="Resources\help.png" />
+    <None Include="Resources\info.png" />
     <None Include="Resources\icon.png" />
     <None Include="Resources\icon.bmp" />
     <None Include="Resources\blue_sd.png" />

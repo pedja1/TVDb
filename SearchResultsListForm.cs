@@ -95,13 +95,20 @@ namespace TVDb
 
             if (backgroundWorker1.IsBusy != true && searchResults.SelectedItems.Count > 0)
             {
-                // create a new instance of the alert form
-                pd = new ProgressDialog();
-                // event handler for the Cancel button in AlertForm
-                pd.Canceled += new EventHandler<EventArgs>(workerCancel_Click);
-                pd.Show();
-                // Start the asynchronous operation.
-                backgroundWorker1.RunWorkerAsync();
+
+                if (db.ShowExists(searchResults.SelectedItems[0].Text) == false)
+                {
+                    // create a new instance of the alert form
+                    pd = new ProgressDialog();
+                    // event handler for the Cancel button in AlertForm
+                    pd.Canceled += new EventHandler<EventArgs>(workerCancel_Click);
+                    pd.Show();
+                    // Start the asynchronous operation.
+                    backgroundWorker1.RunWorkerAsync();
+                }
+                else {
+                    MessageBox.Show("Show Already Exists");
+                }
             }
             else {
                 MessageBox.Show("You must select a show to add!");
@@ -129,7 +136,6 @@ namespace TVDb
             
             
             BackgroundWorker worker = sender as BackgroundWorker;
-            Console.WriteLine("DoWork");
 
             //Step1 Create temp directory if doesnt exists
             
@@ -188,7 +194,7 @@ namespace TVDb
                 @"res/" + n.seriesName + "_poster.jpg");
                 SeriesDatabaseEntry sdb = new SeriesDatabaseEntry(n.seriesName, n.firstAired, n.imdbId, n.overview, n.rating, n.id, n.lang,
                     "res/" + n.seriesName + "_banner.jpg", "http://thetvdb.com/banners/" + n.banner, "res/" + n.seriesName + "_poster.jpg", "http://thetvdb.com/banners/" + n.poster,
-                    "res/" + n.seriesName + "_fanart.jpg", "http://thetvdb.com/banners/" + n.fanart, n.network, n.runtime, n.status, false, false);
+                    "res/" + n.seriesName + "_fanart.jpg", "http://thetvdb.com/banners/" + n.fanart, n.network, n.runtime, n.status, false, false, DateTime.Now.ToString());
                
                 
                 sName = n.id.ToString();
