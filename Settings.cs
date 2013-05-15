@@ -1,22 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace TVDb
 {
     public partial class Settings : Form
     {
-        MainForm mainForm;
+        readonly MainForm _mainForm;
         public Settings(MainForm mainForm)
         {
             InitializeComponent();
-            this.mainForm = mainForm;
+            _mainForm = mainForm;
         }
 
         private void Settings_Load(object sender, EventArgs e)
@@ -33,23 +26,13 @@ namespace TVDb
 
         private void Settings_FormClosed(object sender, FormClosedEventArgs e)
         {
-            mainForm.updateShowList();
+            _mainForm.UpdateShowList();
             Properties.Settings.Default.Save();
         }
 
         private void checkBox1_CheckedChanged(object sender, EventArgs e)
         {
-            if (checkBox1.Checked)
-            {
-                Properties.Settings.Default.ShowHidden = true;
-            }
-            else {
-                Properties.Settings.Default.ShowHidden = false;
-            }
+            Properties.Settings.Default.ShowHidden = checkBox1.Checked;
         }
-
-        
-
-        
     }
 }

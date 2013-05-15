@@ -1,16 +1,12 @@
 ﻿using Ionic.Zip;
 using Manina.Windows.Forms;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml.Linq;
 
@@ -18,8 +14,8 @@ namespace TVDb
 {
     public partial class ArtViewer : Form
     {
-        string seriesId;
-        string seriesName;
+        readonly string _seriesId;
+        readonly string _seriesName;
         public ArtViewer()
         {
             InitializeComponent();
@@ -28,53 +24,51 @@ namespace TVDb
         public ArtViewer(string seriesId, string seriesName)
         {
             InitializeComponent();
-            this.seriesId = seriesId;
-            this.seriesName = seriesName;
+            _seriesId = seriesId;
+            _seriesName = seriesName;
         }
 
         private void ArtViewer_Load(object sender, EventArgs e)
         {
 
-            showSaved();
+            ShowSaved();
             
         }
 
-        private void showSaved() {
-            this.imageListView1.ShowCheckBoxes = false;
-            SQLiteDatabase db = new SQLiteDatabase();
-            DataTable dt;
-            String query = "SELECT * FROM arts_" + seriesId;
+        private void ShowSaved() {
+            imageListView1.ShowCheckBoxes = false;
+            var db = new SqLiteDatabase();
+            var query = "SELECT * FROM arts_" + _seriesId;
             try
             {
-                dt = db.GetDataTable(query);
+                var dt = db.GetDataTable(query);
                 imageListView1.Items.Clear();
-                for (int i = 0; i < dt.Rows.Count; i++)
+                for (var i = 0; i < dt.Rows.Count; i++)
                 {
                     DataRow drow = dt.Rows[i];
-                    ImageListViewItem img1 = new ImageListViewItem();
-                    img1.FileName = @drow["image"].ToString();
-                    this.imageListView1.Items.AddRange(new ImageListViewItem[] { img1 });
+                    var img1 = new ImageListViewItem {FileName = @drow["image"].ToString()};
+                    imageListView1.Items.AddRange(new[] { img1 });
                 }
             }
             catch(Exception e){
                 Console.WriteLine(e.Message);
-                String CREATE_TABLE = "CREATE TABLE " + "arts_" + seriesId + "("
+                var createTable = "CREATE TABLE " + "arts_" + _seriesId + "("
                             + "_id" + " INTEGER PRIMARY KEY,"
                             + "image" + " TEXT"
                             +
                             ")";
-                ArtsDatabaseEntry adb = new ArtsDatabaseEntry(
-                    "res/" + seriesName + "_banner.jpg");
-                ArtsDatabaseEntry adb2 = new ArtsDatabaseEntry("res/" + seriesName + "_poster.jpg");
-                ArtsDatabaseEntry adb3 = new ArtsDatabaseEntry(
-                    "res/" + seriesName + "_fanart.jpg");
+                var adb = new ArtsDatabaseEntry(
+                    "res/" + _seriesName + "_banner.jpg");
+                var adb2 = new ArtsDatabaseEntry("res/" + _seriesName + "_poster.jpg");
+                var adb3 = new ArtsDatabaseEntry(
+                    "res/" + _seriesName + "_fanart.jpg");
                 try
                 {
-                    db.createTable(CREATE_TABLE);
-                    db.InsertArts(adb, "arts_" + seriesId);
-                    db.InsertArts(adb2, "arts_" + seriesId);
-                    db.InsertArts(adb3, "arts_" + seriesId);
-                    showSaved();
+                    db.CreateTable(createTable);
+                    db.InsertArts(adb, "arts_" + _seriesId);
+                    db.InsertArts(adb2, "arts_" + _seriesId);
+                    db.InsertArts(adb3, "arts_" + _seriesId);
+                    ShowSaved();
                 }
                 catch (Exception crap)
                 {
@@ -92,19 +86,19 @@ namespace TVDb
         private void backgroundWorker1_DoWork(object sender, DoWorkEventArgs e)
         {
             
-            BackgroundWorker worker = sender as BackgroundWorker;
-            if (!System.IO.Directory.Exists("temp"))
+            var worker = sender as BackgroundWorker;
+            if (!Directory.Exists("temp"))
             {
-                System.IO.Directory.CreateDirectory("temp");
+                Directory.CreateDirectory("temp");
             }
-            WebClient Client = new WebClient();
-            Client.DownloadFile("http://thetvdb.com/api/" + Constants.api_key + "/series/" + seriesId + "/all/en.zip",
+            var client = new WebClient();
+            client.DownloadFile("http://thetvdb.com/api/" + Constants.ApiKey + "/series/" + _seriesId + "/all/en.zip",
                 @"temp/tmp.zip");
-            using (ZipFile zip = ZipFile.Read("temp/tmp.zip"))
+            using (var zip = ZipFile.Read("temp/tmp.zip"))
             {
                 zip.ExtractAll("temp/");
             }
-            XDocument doc = XDocument.Load("temp/banners.xml");
+            var doc = XDocument.Load("temp/banners.xml");
 
             var names = from ele in doc.Descendants("Banner")
                         select new
@@ -113,46 +107,41 @@ namespace TVDb
                             type = (string)ele.Element("BannerType")
                         };
 
-            foreach (var n in names)
+            foreach (var n in names.Where(n => n.type != "season"))
             {
-                if(n.type != "season"){
-                    if(e.Argument.ToString() == "0"){
+                switch (e.Argument.ToString())
+                {
+                    case "0":
                         if (n.type != "fanart" && n.type != "poster")
                         {
-                            Client.DownloadFile("http://thetvdb.com/banners/" + n.url,
-                                @"temp/" + Path.GetFileName(n.url));
+                            client.DownloadFile("http://thetvdb.com/banners/" + n.url,
+                                                @"temp/" + Path.GetFileName(n.url));
 
-                            ImageListViewItem img = new ImageListViewItem();
-                            img.FileName = @"temp/" + Path.GetFileName(n.url);
-                            worker.ReportProgress(0, img);
+                            var img = new ImageListViewItem {FileName = @"temp/" + Path.GetFileName(n.url)};
+                            if (worker != null) worker.ReportProgress(0, img);
                         }
-                    }
-                    else if (e.Argument.ToString() == "1")
-                    {
+                        break;
+                    case "1":
                         if (n.type != "fanart" && n.type != "series")
                         {
-                            Client.DownloadFile("http://thetvdb.com/banners/" + n.url,
-                                @"temp/" + Path.GetFileName(n.url));
+                            client.DownloadFile("http://thetvdb.com/banners/" + n.url,
+                                                @"temp/" + Path.GetFileName(n.url));
 
-                            ImageListViewItem img = new ImageListViewItem();
-                            img.FileName = @"temp/" + Path.GetFileName(n.url);
-                            worker.ReportProgress(0, img);
+                            var img = new ImageListViewItem {FileName = @"temp/" + Path.GetFileName(n.url)};
+                            if (worker != null) worker.ReportProgress(0, img);
                         }
-                    }
-                    else if (e.Argument.ToString() == "2")
-                    {
+                        break;
+                    case "2":
                         if (n.type != "series" && n.type != "poster")
                         {
-                            Client.DownloadFile("http://thetvdb.com/banners/" + n.url,
-                                @"temp/" + Path.GetFileName(n.url));
+                            client.DownloadFile("http://thetvdb.com/banners/" + n.url,
+                                                @"temp/" + Path.GetFileName(n.url));
 
-                            ImageListViewItem img = new ImageListViewItem();
-                            img.FileName = @"temp/" + Path.GetFileName(n.url);
-                            worker.ReportProgress(0, img);
+                            var img = new ImageListViewItem {FileName = @"temp/" + Path.GetFileName(n.url)};
+                            if (worker != null) worker.ReportProgress(0, img);
                         }
-                    }
+                        break;
                 }
-                
             }
             
         }
@@ -163,19 +152,19 @@ namespace TVDb
 
         private void backgroundWorker1_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
-            this.imageListView1.Items.Add((ImageListViewItem)e.UserState);
+           imageListView1.Items.Add((ImageListViewItem)e.UserState);
         }
 
         private void backgroundWorker1_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
             Console.WriteLine("Done");
-            enableButtons();
-            this.Cursor = System.Windows.Forms.Cursors.Default;
+            EnableButtons();
+            Cursor = Cursors.Default;
         }
 
         private void toolStripDropDownButton1_Click(object sender, EventArgs e)
         {
-            startWorker(0);
+            StartWorker(0);
         }
 
         private void ArtViewer_FormClosing(object sender, FormClosingEventArgs e)
@@ -183,29 +172,28 @@ namespace TVDb
             wipeTempDir();
         }
 
-        private void wipeTempDir() {
-            if (System.IO.Directory.Exists("temp"))
+        private void wipeTempDir()
+        {
+            if (!Directory.Exists("temp")) return;
+            try
             {
-                try
-                {
-                    Directory.Delete(@"temp", true);
-                }
-                catch(Exception e) {
-                    MessageBox.Show(e.Message);
-                }
+                Directory.Delete(@"temp", true);
+            }
+            catch(Exception e) {
+                MessageBox.Show(e.Message);
             }
         }
 
         private void toolStripDropDownButton2_Click(object sender, EventArgs e)
         {
-            startWorker(1);
+            StartWorker(1);
         }
 
-        private void startWorker(int code) {
+        private void StartWorker(int code) {
 
-            this.Cursor = System.Windows.Forms.Cursors.WaitCursor;
-            this.imageListView1.ShowCheckBoxes = true;
-            disableButtons();
+            Cursor = Cursors.WaitCursor;
+            imageListView1.ShowCheckBoxes = true;
+            DisableButtons();
             imageListView1.Items.Clear();
             wipeTempDir();
             if (backgroundWorker1.IsBusy != true)
@@ -223,17 +211,17 @@ namespace TVDb
 
         private void toolStripDropDownButton3_Click(object sender, EventArgs e)
         {
-            startWorker(2);
+            StartWorker(2);
         }
 
-        private void enableButtons() {
+        private void EnableButtons() {
             downloadBanners.Enabled = true;
             downloadPosters.Enabled = true;
             downloadFanarts.Enabled = true;
             save.Enabled = true;
             saved.Enabled = true;
         }
-        private void disableButtons()
+        private void DisableButtons()
         {
             downloadBanners.Enabled = false;
             downloadPosters.Enabled = false;
@@ -244,29 +232,24 @@ namespace TVDb
 
         private void saved_Click(object sender, EventArgs e)
         {
-            showSaved();
-        }
-
-        private void saveToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-
+            ShowSaved();
         }
 
         private void save_Click(object sender, EventArgs e)
         {
-            this.Cursor = System.Windows.Forms.Cursors.WaitCursor;
-            SQLiteDatabase db = new SQLiteDatabase();
-            foreach(ImageListViewItem i in imageListView1.CheckedItems){
+            Cursor = Cursors.WaitCursor;
+            var db = new SqLiteDatabase();
+            foreach(var i in imageListView1.CheckedItems){
                 File.Copy(i.FileName, @"res/"+Path.GetFileName(i.FileName));
                 try{
-                    db.InsertArts(new ArtsDatabaseEntry("res/" + Path.GetFileName(i.FileName)), "arts_" + seriesId);
+                    db.InsertArts(new ArtsDatabaseEntry("res/" + Path.GetFileName(i.FileName)), "arts_" + _seriesId);
                 }
                 catch(Exception ex){
                     MessageBox.Show(ex.Message);
                 }
             }
-            showSaved();
-            this.Cursor = System.Windows.Forms.Cursors.Default;
+            ShowSaved();
+            Cursor = Cursors.Default;
         }
         
     }

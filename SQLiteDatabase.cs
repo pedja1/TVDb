@@ -2,360 +2,359 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SQLite;
+using System.Linq;
 using System.Windows.Forms;
-using TVDb;
 
-class SQLiteDatabase
+namespace TVDb
 {
-    String dbConnection;
-
-    /// <summary>
-    ///     Default Constructor for SQLiteDatabase Class.
-    /// </summary>
-    public SQLiteDatabase()
+    class SqLiteDatabase
     {
-        dbConnection = "Data Source=tvdb.db";
-    }
+        readonly String _dbConnection;
 
-    /// <summary>
-    ///     Single Param Constructor for specifying the DB file.
-    /// </summary>
-    /// <param name="inputFile">The File containing the DB</param>
-    public SQLiteDatabase(String inputFile)
-    {
-        dbConnection = String.Format("Data Source={0}", inputFile);
-    }
-
-    /// <summary>
-    ///     Single Param Constructor for specifying advanced connection options.
-    /// </summary>
-    /// <param name="connectionOpts">A dictionary containing all desired options and their values</param>
-    public SQLiteDatabase(Dictionary<String, String> connectionOpts)
-    {
-        String str = "";
-        foreach (KeyValuePair<String, String> row in connectionOpts)
+        /// <summary>
+        ///     Default Constructor for SQLiteDatabase Class.
+        /// </summary>
+        public SqLiteDatabase()
         {
-            str += String.Format("{0}={1}; ", row.Key, row.Value);
+            _dbConnection = "Data Source=tvdb.db";
         }
-        str = str.Trim().Substring(0, str.Length - 1);
-        dbConnection = str;
-    }
 
-    /// <summary>
-    ///     Allows the programmer to run a query against the Database.
-    /// </summary>
-    /// <param name="sql">The SQL to run</param>
-    /// <returns>A DataTable containing the result set.</returns>
-    public DataTable GetDataTable(string sql)
-    {
-        DataTable dt = new DataTable();
-        try
+        /// <summary>
+        ///     Single Param Constructor for specifying the DB file.
+        /// </summary>
+        /// <param name="inputFile">The File containing the DB</param>
+        public SqLiteDatabase(String inputFile)
         {
-            SQLiteConnection cnn = new SQLiteConnection(dbConnection);
+            _dbConnection = String.Format("Data Source={0}", inputFile);
+        }
+
+        /// <summary>
+        ///     Single Param Constructor for specifying advanced connection options.
+        /// </summary>
+        /// <param name="connectionOpts">A dictionary containing all desired options and their values</param>
+        public SqLiteDatabase(Dictionary<String, String> connectionOpts)
+        {
+            String str = connectionOpts.Aggregate("", (current, row) => current + String.Format("{0}={1}; ", row.Key, row.Value));
+            str = str.Trim().Substring(0, str.Length - 1);
+            _dbConnection = str;
+        }
+
+        /// <summary>
+        ///     Allows the programmer to run a query against the Database.
+        /// </summary>
+        /// <param name="sql">The SQL to run</param>
+        /// <returns>A DataTable containing the result set.</returns>
+        public DataTable GetDataTable(string sql)
+        {
+            var dt = new DataTable();
+            try
+            {
+                var cnn = new SQLiteConnection(_dbConnection);
+                cnn.Open();
+                var mycommand = new SQLiteCommand(cnn) {CommandText = sql};
+                var reader = mycommand.ExecuteReader();
+                dt.Load(reader);
+                reader.Close();
+                cnn.Close();
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+            return dt;
+        }
+
+        /// <summary>
+        ///     Allows the programmer to interact with the database for purposes other than a query.
+        /// </summary>
+        /// <param name="sql">The SQL to be run.</param>
+        /// <returns>An Integer containing the number of rows updated.</returns>
+        public int ExecuteNonQuery(string sql)
+        {
+            var cnn = new SQLiteConnection(_dbConnection);
             cnn.Open();
-            SQLiteCommand mycommand = new SQLiteCommand(cnn);
-            mycommand.CommandText = sql;
-            SQLiteDataReader reader = mycommand.ExecuteReader();
-            dt.Load(reader);
-            reader.Close();
+            var mycommand = new SQLiteCommand(cnn) {CommandText = sql};
+
+            var rowsUpdated = mycommand.ExecuteNonQuery();
             cnn.Close();
+            return rowsUpdated;
         }
-        catch (Exception e)
+        public int UpdateDate(string seriesId, string date)
         {
-            throw new Exception(e.Message);
+            var cnn = new SQLiteConnection(_dbConnection);
+            cnn.Open();
+            var mycommand = new SQLiteCommand(cnn)
+                {
+                    CommandText = "UPDATE series SET updated=@date WHERE series_id=" + seriesId
+                };
+            mycommand.Parameters.Add(new SQLiteParameter("@date", date));
+            var rowsUpdated = mycommand.ExecuteNonQuery();
+            cnn.Close();
+            return rowsUpdated;
         }
-        return dt;
-    }
 
-    /// <summary>
-    ///     Allows the programmer to interact with the database for purposes other than a query.
-    /// </summary>
-    /// <param name="sql">The SQL to be run.</param>
-    /// <returns>An Integer containing the number of rows updated.</returns>
-    public int ExecuteNonQuery(string sql)
-    {
-        SQLiteConnection cnn = new SQLiteConnection(dbConnection);
-        cnn.Open();
-        SQLiteCommand mycommand = new SQLiteCommand(cnn);
-        mycommand.CommandText = sql;
+        public bool EpisodeExists(string seriesId, string episodeId) {
+            var cnn = new SQLiteConnection(_dbConnection);
+            cnn.Open();
+            var cmd = new SQLiteCommand(cnn)
+                {
+                    CommandText = "SELECT count(*) FROM episodes_" + seriesId + " WHERE episode_id=" + episodeId
+                };
+            var count = Convert.ToInt32(cmd.ExecuteScalar());
+            cnn.Close();
+            return count != 0;
+        }
 
-        int rowsUpdated = mycommand.ExecuteNonQuery();
-        cnn.Close();
-        return rowsUpdated;
-    }
-    public int UpdateDate(string seriesId, string date)
-    {
-        SQLiteConnection cnn = new SQLiteConnection(dbConnection);
-        cnn.Open();
-        SQLiteCommand mycommand = new SQLiteCommand(cnn);
-        mycommand.CommandText = "UPDATE series SET updated=@date WHERE series_id=" + seriesId;
-        mycommand.Parameters.Add(new SQLiteParameter("@date", date));
-        int rowsUpdated = mycommand.ExecuteNonQuery();
-        cnn.Close();
-        return rowsUpdated;
-    }
+        public bool ShowExists(string seriesName)
+        {
+            var cnn = new SQLiteConnection(_dbConnection);
+            cnn.Open();
+            var cmd = new SQLiteCommand(cnn) {CommandText = "SELECT count(*) FROM series WHERE series_name=@seriesName"};
+            cmd.Parameters.Add(new SQLiteParameter("@seriesName", seriesName));
+            var count = Convert.ToInt32(cmd.ExecuteScalar());
+            cnn.Close();
+            return count != 0;
+        }
 
-    public bool EpisodeExists(string seriesId, string episodeId) {
-        SQLiteConnection cnn = new SQLiteConnection(dbConnection);
-        cnn.Open();
-        SQLiteCommand cmd = new SQLiteCommand(cnn);
-        cmd.CommandText = "SELECT count(*) FROM episodes_"+seriesId+" WHERE episode_id="+episodeId;
-        int count = Convert.ToInt32(cmd.ExecuteScalar());
-        cnn.Close();
-        if (count == 0)
-            return false;
-        else
-            return true;
-    }
-
-    public bool ShowExists(string seriesName)
-    {
-        SQLiteConnection cnn = new SQLiteConnection(dbConnection);
-        cnn.Open();
-        SQLiteCommand cmd = new SQLiteCommand(cnn);
-        cmd.CommandText = "SELECT count(*) FROM series WHERE series_name=@seriesName";
-        cmd.Parameters.Add(new SQLiteParameter("@seriesName", seriesName));
-        int count = Convert.ToInt32(cmd.ExecuteScalar());
-        cnn.Close();
-        if (count == 0)
-            return false;
-        else
-            return true;
-    }
-
-    public int InsertEpisode(string tableName, EpisodeDatabaseEntry episode)
-    {
-        SQLiteConnection cnn = new SQLiteConnection(dbConnection);
-        cnn.Open();
-        SQLiteCommand mycommand = new SQLiteCommand(cnn);
-        mycommand.CommandText = "INSERT INTO "+tableName+" (episode_name, episode, season, first_aired, imdb_id, overview, rating, episode_id, watched) VALUES(@episodeName, @episode, @season, @firstAired, @imdbId, @overview, @rating, @episode_id, @watched)";
-        mycommand.Parameters.Add(new SQLiteParameter("@episodeName", episode.episodeName));
-        mycommand.Parameters.Add(new SQLiteParameter("@episode", episode.episode));
-        mycommand.Parameters.Add(new SQLiteParameter("@firstAired", episode.firstAired));
-        mycommand.Parameters.Add(new SQLiteParameter("@season", episode.season));
-        mycommand.Parameters.Add(new SQLiteParameter("@imdbId", episode.imdbId));
-        mycommand.Parameters.Add(new SQLiteParameter("@overview", episode.overview));
-        mycommand.Parameters.Add(new SQLiteParameter("@rating", episode.rating));
-        mycommand.Parameters.Add(new SQLiteParameter("@watched", episode.watched));
-        mycommand.Parameters.Add(new SQLiteParameter("@episode_id", episode.episodeId));
-        int rowsUpdated = mycommand.ExecuteNonQuery();
-        cnn.Close();
-        return rowsUpdated;
-    }
-    public int UpdateEpisode(string seriesId, string episodeId, string episodeName, string overview, string firstAired, string rating)
-    {
-        SQLiteConnection cnn = new SQLiteConnection(dbConnection);
-        cnn.Open();
-        SQLiteCommand mycommand = new SQLiteCommand(cnn);
-        mycommand.CommandText = "UPDATE episodes_" + seriesId + " SET episode_name=@episodeName, first_aired=@firstAired, overview=@overview, rating=@rating WHERE episode_id=" + episodeId;
+        public int InsertEpisode(string tableName, EpisodeDatabaseEntry episode)
+        {
+            var cnn = new SQLiteConnection(_dbConnection);
+            cnn.Open();
+            var mycommand = new SQLiteCommand(cnn)
+                {
+                    CommandText =
+                        "INSERT INTO " + tableName +
+                        " (episode_name, episode, season, first_aired, imdb_id, overview, rating, episode_id, watched) VALUES(@episodeName, @episode, @season, @firstAired, @imdbId, @overview, @rating, @episode_id, @watched)"
+                };
+            mycommand.Parameters.Add(new SQLiteParameter("@episodeName", episode.EpisodeName));
+            mycommand.Parameters.Add(new SQLiteParameter("@episode", episode.Episode));
+            mycommand.Parameters.Add(new SQLiteParameter("@firstAired", episode.FirstAired));
+            mycommand.Parameters.Add(new SQLiteParameter("@season", episode.Season));
+            mycommand.Parameters.Add(new SQLiteParameter("@imdbId", episode.ImdbId));
+            mycommand.Parameters.Add(new SQLiteParameter("@overview", episode.Overview));
+            mycommand.Parameters.Add(new SQLiteParameter("@rating", episode.Rating));
+            mycommand.Parameters.Add(new SQLiteParameter("@watched", episode.Watched));
+            mycommand.Parameters.Add(new SQLiteParameter("@episode_id", episode.EpisodeId));
+            var rowsUpdated = mycommand.ExecuteNonQuery();
+            cnn.Close();
+            return rowsUpdated;
+        }
+        public int UpdateEpisode(string seriesId, string episodeId, string episodeName, string overview, string firstAired, string rating)
+        {
+            var cnn = new SQLiteConnection(_dbConnection);
+            cnn.Open();
+            var mycommand = new SQLiteCommand(cnn)
+                {
+                    CommandText =
+                        "UPDATE episodes_" + seriesId +
+                        " SET episode_name=@episodeName, first_aired=@firstAired, overview=@overview, rating=@rating WHERE episode_id=" +
+                        episodeId
+                };
             mycommand.Parameters.Add(new SQLiteParameter("@episodeName", episodeName));
             mycommand.Parameters.Add(new SQLiteParameter("@overview", overview));
             mycommand.Parameters.Add(new SQLiteParameter("@rating", rating));
             mycommand.Parameters.Add(new SQLiteParameter("@firstAired", firstAired));
-        int rowsUpdated = mycommand.ExecuteNonQuery();
-        cnn.Close();
-        return rowsUpdated;
-    }
-    /**/
-    public int InsertSeries(SeriesDatabaseEntry series)
-    {
-        SQLiteConnection cnn = new SQLiteConnection(dbConnection);
-        cnn.Open();
-        SQLiteCommand mycommand = new SQLiteCommand(cnn);
-
-        mycommand.CommandText = "INSERT INTO series (series_name, first_aired, imdb_id, overview, rating, series_id, language, banner_local, banner_url, poster_local, poster_url, fanart_local, fanart_url, network, runtime, status, ignore_agenda, hide_from_list, updated) VALUES(@series_name, @first_aired, @imdb_id, @overview, @rating, @series_id, @language, @banner_local, @banner_url, @poster_local, @poster_url, @fanart_local, @fanart_url, @network, @runtime, @status, @ignore_agenda, @hide, @updated);";
-        mycommand.CommandType = CommandType.Text;
-        mycommand.Parameters.Add(new SQLiteParameter("@series_name", series.seriesName));
-        mycommand.Parameters.Add(new SQLiteParameter("@first_aired", series.firstAired));
-        mycommand.Parameters.Add(new SQLiteParameter("@imdb_id", series.imdbId));
-        mycommand.Parameters.Add(new SQLiteParameter("@overview", series.overview));
-        mycommand.Parameters.Add(new SQLiteParameter("@rating", series.rating));
-        mycommand.Parameters.Add(new SQLiteParameter("@series_id", series.seriesId));
-        mycommand.Parameters.Add(new SQLiteParameter("@language", series.language));
-        mycommand.Parameters.Add(new SQLiteParameter("@banner_local", series.bannerLocal));
-        mycommand.Parameters.Add(new SQLiteParameter("@banner_url", series.bannerUrl));
-        mycommand.Parameters.Add(new SQLiteParameter("@poster_local", series.posterLocal));
-        mycommand.Parameters.Add(new SQLiteParameter("@poster_url", series.posterUrl));
-        mycommand.Parameters.Add(new SQLiteParameter("@fanart_local", series.fanartLocal));
-        mycommand.Parameters.Add(new SQLiteParameter("@fanart_url", series.fanartUrl));
-        mycommand.Parameters.Add(new SQLiteParameter("@status", series.status));
-        mycommand.Parameters.Add(new SQLiteParameter("@network", series.network));
-        mycommand.Parameters.Add(new SQLiteParameter("@runtime", series.runtime));
-        mycommand.Parameters.Add(new SQLiteParameter("@ignore_agenda", series.ignore));
-        mycommand.Parameters.Add(new SQLiteParameter("@hide", series.hide));
-        mycommand.Parameters.Add(new SQLiteParameter("@updated", series.updated));
-        int rowsUpdated = mycommand.ExecuteNonQuery();
-        cnn.Close();
-        return rowsUpdated;
-    }
-    public int InsertArts(ArtsDatabaseEntry series, string tableName)
-    {
-        SQLiteConnection cnn = new SQLiteConnection(dbConnection);
-        cnn.Open();
-        SQLiteCommand mycommand = new SQLiteCommand(cnn);
-
-        mycommand.CommandText = "INSERT INTO "+tableName+" (image) VALUES(@image);";
-        mycommand.CommandType = CommandType.Text;
-        mycommand.Parameters.Add(new SQLiteParameter("@image", series.bannerLocal));
-        int rowsUpdated = mycommand.ExecuteNonQuery();
-        cnn.Close();
-        return rowsUpdated;
-    }
-
-    /// <summary>
-    ///     Allows the programmer to retrieve single items from the DB.
-    /// </summary>
-    /// <param name="sql">The query to run.</param>
-    /// <returns>A string.</returns>
-    public string ExecuteScalar(string sql)
-    {
-        SQLiteConnection cnn = new SQLiteConnection(dbConnection);
-        cnn.Open();
-        SQLiteCommand mycommand = new SQLiteCommand(cnn);
-        mycommand.CommandText = sql;
-        object value = mycommand.ExecuteScalar();
-        cnn.Close();
-        if (value != null)
-        {
-            return value.ToString();
+            var rowsUpdated = mycommand.ExecuteNonQuery();
+            cnn.Close();
+            return rowsUpdated;
         }
-        return "";
-    }
-
-    /// <summary>
-    ///     Allows the programmer to easily update rows in the DB.
-    /// </summary>
-    /// <param name="tableName">The table to update.</param>
-    /// <param name="data">A dictionary containing Column names and their new values.</param>
-    /// <param name="where">The where clause for the update statement.</param>
-    /// <returns>A boolean true or false to signify success or failure.</returns>
-    public bool Update(String tableName, Dictionary<String, String> data, String where)
-    {
-        String vals = "";
-        Boolean returnCode = true;
-        if (data.Count >= 1)
+        /**/
+        public int InsertSeries(SeriesDatabaseEntry series)
         {
+            var cnn = new SQLiteConnection(_dbConnection);
+            cnn.Open();
+            var mycommand = new SQLiteCommand(cnn)
+                {
+                    CommandText =
+                        "INSERT INTO series (series_name, first_aired, imdb_id, overview, rating, series_id, language, banner_local, banner_url, poster_local, poster_url, fanart_local, fanart_url, network, runtime, status, ignore_agenda, hide_from_list, updated) VALUES(@series_name, @first_aired, @imdb_id, @overview, @rating, @series_id, @language, @banner_local, @banner_url, @poster_local, @poster_url, @fanart_local, @fanart_url, @network, @runtime, @status, @ignore_agenda, @hide, @updated);",
+                    CommandType = CommandType.Text
+                };
+
+            mycommand.Parameters.Add(new SQLiteParameter("@series_name", series.SeriesName));
+            mycommand.Parameters.Add(new SQLiteParameter("@first_aired", series.FirstAired));
+            mycommand.Parameters.Add(new SQLiteParameter("@imdb_id", series.ImdbId));
+            mycommand.Parameters.Add(new SQLiteParameter("@overview", series.Overview));
+            mycommand.Parameters.Add(new SQLiteParameter("@rating", series.Rating));
+            mycommand.Parameters.Add(new SQLiteParameter("@series_id", series.SeriesId));
+            mycommand.Parameters.Add(new SQLiteParameter("@language", series.Language));
+            mycommand.Parameters.Add(new SQLiteParameter("@banner_local", series.BannerLocal));
+            mycommand.Parameters.Add(new SQLiteParameter("@banner_url", series.BannerUrl));
+            mycommand.Parameters.Add(new SQLiteParameter("@poster_local", series.PosterLocal));
+            mycommand.Parameters.Add(new SQLiteParameter("@poster_url", series.PosterUrl));
+            mycommand.Parameters.Add(new SQLiteParameter("@fanart_local", series.FanartLocal));
+            mycommand.Parameters.Add(new SQLiteParameter("@fanart_url", series.FanartUrl));
+            mycommand.Parameters.Add(new SQLiteParameter("@status", series.Status));
+            mycommand.Parameters.Add(new SQLiteParameter("@network", series.Network));
+            mycommand.Parameters.Add(new SQLiteParameter("@runtime", series.Runtime));
+            mycommand.Parameters.Add(new SQLiteParameter("@ignore_agenda", series.Ignore));
+            mycommand.Parameters.Add(new SQLiteParameter("@hide", series.Hide));
+            mycommand.Parameters.Add(new SQLiteParameter("@updated", series.Updated));
+            var rowsUpdated = mycommand.ExecuteNonQuery();
+            cnn.Close();
+            return rowsUpdated;
+        }
+        public int InsertArts(ArtsDatabaseEntry series, string tableName)
+        {
+            var cnn = new SQLiteConnection(_dbConnection);
+            cnn.Open();
+            var mycommand = new SQLiteCommand(cnn)
+                {
+                    CommandText = "INSERT INTO " + tableName + " (image) VALUES(@image);",
+                    CommandType = CommandType.Text
+                };
+
+            mycommand.Parameters.Add(new SQLiteParameter("@image", series.BannerLocal));
+            var rowsUpdated = mycommand.ExecuteNonQuery();
+            cnn.Close();
+            return rowsUpdated;
+        }
+
+        /// <summary>
+        ///     Allows the programmer to retrieve single items from the DB.
+        /// </summary>
+        /// <param name="sql">The query to run.</param>
+        /// <returns>A string.</returns>
+        public string ExecuteScalar(string sql)
+        {
+            var cnn = new SQLiteConnection(_dbConnection);
+            cnn.Open();
+            var mycommand = new SQLiteCommand(cnn) {CommandText = sql};
+            var value = mycommand.ExecuteScalar();
+            cnn.Close();
+            return value != null ? value.ToString() : "";
+        }
+
+        /// <summary>
+        ///     Allows the programmer to easily update rows in the DB.
+        /// </summary>
+        /// <param name="tableName">The table to update.</param>
+        /// <param name="data">A dictionary containing Column names and their new values.</param>
+        /// <param name="where">The where clause for the update statement.</param>
+        /// <returns>A boolean true or false to signify success or failure.</returns>
+        public bool Update(String tableName, Dictionary<String, String> data, String where)
+        {
+            var vals = "";
+            var returnCode = true;
+            if (data.Count >= 1)
+            {
+                vals = data.Aggregate(vals, (current, val) => current + String.Format(" {0} = '{1}',", val.Key.ToString(), val.Value.ToString()));
+                vals = vals.Substring(0, vals.Length - 1);
+            }
+            try
+            {
+                ExecuteNonQuery(String.Format("update {0} set {1} where {2};", tableName, vals, where));
+            }
+            catch
+            {
+                returnCode = false;
+            }
+            return returnCode;
+        }
+
+        /// <summary>
+        ///     Allows the programmer to easily delete rows from the DB.
+        /// </summary>
+        /// <param name="tableName">The table from which to delete.</param>
+        /// <param name="where">The where clause for the delete.</param>
+        /// <returns>A boolean true or false to signify success or failure.</returns>
+        public bool Delete(String tableName, String where)
+        {
+            Boolean returnCode = true;
+            try
+            {
+                ExecuteNonQuery(String.Format("delete from {0} where {1};", tableName, where));
+            }
+            catch (Exception fail)
+            {
+                MessageBox.Show(fail.Message);
+                returnCode = false;
+            }
+            return returnCode;
+        }
+
+        /// <summary>
+        ///     Allows the programmer to easily insert into the DB
+        /// </summary>
+        /// <param name="tableName">The table into which we insert the data.</param>
+        /// <param name="data">A dictionary containing the column names and data for the insert.</param>
+        /// <returns>A boolean true or false to signify success or failure.</returns>
+        public bool Insert(String tableName, Dictionary<String, String> data)
+        {
+            String columns = "";
+            String values = "";
+            Boolean returnCode = true;
             foreach (KeyValuePair<String, String> val in data)
             {
-                vals += String.Format(" {0} = '{1}',", val.Key.ToString(), val.Value.ToString());
+                columns += String.Format(" {0},", val.Key.ToString());
+                values += String.Format(" '{0}',", val.Value);
             }
-            vals = vals.Substring(0, vals.Length - 1);
-        }
-        try
-        {
-            this.ExecuteNonQuery(String.Format("update {0} set {1} where {2};", tableName, vals, where));
-        }
-        catch
-        {
-            returnCode = false;
-        }
-        return returnCode;
-    }
-
-    /// <summary>
-    ///     Allows the programmer to easily delete rows from the DB.
-    /// </summary>
-    /// <param name="tableName">The table from which to delete.</param>
-    /// <param name="where">The where clause for the delete.</param>
-    /// <returns>A boolean true or false to signify success or failure.</returns>
-    public bool Delete(String tableName, String where)
-    {
-        Boolean returnCode = true;
-        try
-        {
-            this.ExecuteNonQuery(String.Format("delete from {0} where {1};", tableName, where));
-        }
-        catch (Exception fail)
-        {
-            MessageBox.Show(fail.Message);
-            returnCode = false;
-        }
-        return returnCode;
-    }
-
-    /// <summary>
-    ///     Allows the programmer to easily insert into the DB
-    /// </summary>
-    /// <param name="tableName">The table into which we insert the data.</param>
-    /// <param name="data">A dictionary containing the column names and data for the insert.</param>
-    /// <returns>A boolean true or false to signify success or failure.</returns>
-    public bool Insert(String tableName, Dictionary<String, String> data)
-    {
-        String columns = "";
-        String values = "";
-        Boolean returnCode = true;
-        foreach (KeyValuePair<String, String> val in data)
-        {
-            columns += String.Format(" {0},", val.Key.ToString());
-            values += String.Format(" '{0}',", val.Value);
-        }
-        columns = columns.Substring(0, columns.Length - 1);
-        values = values.Substring(0, values.Length - 1);
-        try
-        {
-            this.ExecuteNonQuery(String.Format("insert into {0}({1}) values({2});", tableName, columns, values));
-        }
-        catch (Exception fail)
-        {
-            MessageBox.Show(fail.Message);
-            returnCode = false;
-        }
-        return returnCode;
-    }
-
-    /// <summary>
-    ///     Allows the programmer to easily delete all data from the DB.
-    /// </summary>
-    /// <returns>A boolean true or false to signify success or failure.</returns>
-    public bool ClearDB()
-    {
-        DataTable tables;
-        try
-        {
-            tables = this.GetDataTable("select NAME from SQLITE_MASTER where type='table' order by NAME;");
-            foreach (DataRow table in tables.Rows)
+            columns = columns.Substring(0, columns.Length - 1);
+            values = values.Substring(0, values.Length - 1);
+            try
             {
-                this.ClearTable(table["NAME"].ToString());
+                ExecuteNonQuery(String.Format("insert into {0}({1}) values({2});", tableName, columns, values));
             }
-            return true;
+            catch (Exception fail)
+            {
+                MessageBox.Show(fail.Message);
+                returnCode = false;
+            }
+            return returnCode;
         }
-        catch
-        {
-            return false;
-        }
-    }
 
-    /// <summary>
-    ///     Allows the user to easily clear all data from a specific table.
-    /// </summary>
-    /// <param name="table">The name of the table to clear.</param>
-    /// <returns>A boolean true or false to signify success or failure.</returns>
-    public bool ClearTable(String table)
-    {
-        try
+        /// <summary>
+        ///     Allows the programmer to easily delete all data from the DB.
+        /// </summary>
+        /// <returns>A boolean true or false to signify success or failure.</returns>
+        public bool ClearDb()
         {
+            try
+            {
+                var tables = GetDataTable("select NAME from SQLITE_MASTER where type='table' order by NAME;");
+                foreach (DataRow table in tables.Rows)
+                {
+                    ClearTable(table["NAME"].ToString());
+                }
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
 
-            this.ExecuteNonQuery(String.Format("delete from {0};", table));
-            return true;
-        }
-        catch
+        /// <summary>
+        ///     Allows the user to easily clear all data from a specific table.
+        /// </summary>
+        /// <param name="table">The name of the table to clear.</param>
+        /// <returns>A boolean true or false to signify success or failure.</returns>
+        public bool ClearTable(String table)
         {
-            return false;
-        }
-    }
+            try
+            {
 
-    public bool createTable(String query) {
-        Boolean returnCode = true;
-        try
-        {
-            this.ExecuteNonQuery(query);
+                ExecuteNonQuery(String.Format("delete from {0};", table));
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
-        catch (Exception fail)
-        {
-            MessageBox.Show(fail.Message);
-            returnCode = false;
+
+        public bool CreateTable(String query) {
+            var returnCode = true;
+            try
+            {
+                ExecuteNonQuery(query);
+            }
+            catch (Exception fail)
+            {
+                MessageBox.Show(fail.Message);
+                returnCode = false;
+            }
+            return returnCode;
         }
-        return returnCode;
     }
 }
 

@@ -1,40 +1,33 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace TVDb
+﻿namespace TVDb
 {
     class SearchResultsEntry
     {
-
-        string name;
-        string lang;
-        string overview;
-        int seriesId;
+        readonly string _name;
+        readonly string _lang;
+        readonly string _overview;
+        readonly int _seriesId;
 
         public SearchResultsEntry(string name, string lang, string overview, int seriesId) {
-            this.name = name;
-            this.overview = overview;
-            this.lang= lang;
-            this.seriesId = seriesId;
+            _name = name;
+            _overview = overview;
+            _lang= lang;
+            _seriesId = seriesId;
         }
 
-        public string getName() {
-            return name;
+        public string GetName() {
+            return _name;
         }
-        public string getLang()
+        public string GetLang()
         {
-            return lang;
+            return _lang;
         }
-        public string getOverview()
+        public string GetOverview()
         {
-            return overview;
+            return _overview;
         }
-        public int getSeriesId() 
+        public int GetSeriesId() 
         {
-            return seriesId;
+            return _seriesId;
         }
     }
 }

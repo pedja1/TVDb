@@ -8,13 +8,11 @@ namespace TVDb
 {
     class ArtsDatabaseEntry
     {
-        private string _bannerLocal;
-
-        public string bannerLocal { get { return _bannerLocal; } set { _bannerLocal = value; } }
+        public string BannerLocal { get; set; }
 
         public ArtsDatabaseEntry( string bannerLocal)
         {
-            this._bannerLocal = bannerLocal;
+            BannerLocal = bannerLocal;
         }
         public ArtsDatabaseEntry()
         {

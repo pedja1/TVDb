@@ -1,19 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace TVDb
+﻿namespace TVDb
 {
     class HttpHelper
     {
-        public static string HttpGet(string URI)
+        public static string HttpGet(string uri)
         {
-            System.Net.WebRequest req = System.Net.WebRequest.Create(URI);
+            var req = System.Net.WebRequest.Create(uri);
             //req.Proxy = new System.Net.WebProxy(ProxyString, true); //true means no proxy
-            System.Net.WebResponse resp = req.GetResponse();
-            System.IO.StreamReader sr = new System.IO.StreamReader(resp.GetResponseStream());
+            var resp = req.GetResponse();
+// ReSharper disable AssignNullToNotNullAttribute
+            var sr = new System.IO.StreamReader(resp.GetResponseStream());
+// ReSharper restore AssignNullToNotNullAttribute
             return sr.ReadToEnd().Trim();
         }
     }

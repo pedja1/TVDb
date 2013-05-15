@@ -4,13 +4,11 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
-using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml.Linq;
 using TVDb.Properties;
@@ -19,72 +17,63 @@ namespace TVDb
 {
     public partial class MainForm : Form
     {
-        private ListViewColumnSorter lvwColumnSorter;
-        SQLiteDatabase db;
-        AlertDialog alert;
+        private readonly ListViewColumnSorter _lvwColumnSorter;
+        SqLiteDatabase _db;
+        AlertDialog _alert;
         public MainForm()
         {
             InitializeComponent();
-            this.olvColumn2.Width = Properties.Settings.Default.EpisodeListEpisodeNameColumnWidth;
-             this.olvColumn4.Width = Properties.Settings.Default.EpisodeListSeasonColumnWidth;
-            this.olvColumn1.Width = Properties.Settings.Default.EpisodeListEpisodeNumberColumnWidth;
-            this.olvColumn3.Width = Properties.Settings.Default.EpisodeListAiredColumnWidth;
-            this.olvColumn5.Width = Properties.Settings.Default.EpisodeListRatingColumnWidth;
-            this.olvColumn6.Width = Properties.Settings.Default.EpisodeListEpisodeIdColumnWidth;
-            this.seriesName.Width = Properties.Settings.Default.ShowsListSeriesNameColumnWidth;
-            this.firstAired.Width = Properties.Settings.Default.ShowsListFirstAiredColumnWidth;
-            this.network.Width = Properties.Settings.Default.ShowsListNetworkColumnWidth;
-            this.rating.Width = Properties.Settings.Default.ShowsListRatingColumnWidth;
-            this.status.Width = Properties.Settings.Default.ShowsListStatusColumnWidth;
-            this.runtime.Width = Properties.Settings.Default.ShowsListRuntimeColumnWidth;
-            lvwColumnSorter = new ListViewColumnSorter();
-            this.showsList.ListViewItemSorter = lvwColumnSorter;
+            olvColumn2.Width = Properties.Settings.Default.EpisodeListEpisodeNameColumnWidth;
+            olvColumn4.Width = Properties.Settings.Default.EpisodeListSeasonColumnWidth;
+            olvColumn1.Width = Properties.Settings.Default.EpisodeListEpisodeNumberColumnWidth;
+            olvColumn3.Width = Properties.Settings.Default.EpisodeListAiredColumnWidth;
+            olvColumn5.Width = Properties.Settings.Default.EpisodeListRatingColumnWidth;
+            olvColumn6.Width = Properties.Settings.Default.EpisodeListEpisodeIdColumnWidth;
+            seriesName.Width = Properties.Settings.Default.ShowsListSeriesNameColumnWidth;
+            firstAired.Width = Properties.Settings.Default.ShowsListFirstAiredColumnWidth;
+            network.Width = Properties.Settings.Default.ShowsListNetworkColumnWidth;
+            rating.Width = Properties.Settings.Default.ShowsListRatingColumnWidth;
+            status.Width = Properties.Settings.Default.ShowsListStatusColumnWidth;
+            runtime.Width = Properties.Settings.Default.ShowsListRuntimeColumnWidth;
+            _lvwColumnSorter = new ListViewColumnSorter();
+            showsList.ListViewItemSorter = _lvwColumnSorter;
         }
 
 
-        private void CheckKeys(object sender, System.Windows.Forms.KeyPressEventArgs e)
+        private void CheckKeys(object sender, KeyPressEventArgs e)
         {
             if (e.KeyChar == (char)13)
             {
-                search();
+                Search();
             }
-        }
-        private void searchBox_Click(object sender, EventArgs e)
-        {
-            
         }
 
         private void pictureBox1_Click(object sender, EventArgs e)
         {
-            search();
+            Search();
         }
 
-        private void search()
+        private void Search()
         {
-            this.Cursor = System.Windows.Forms.Cursors.WaitCursor;
-            SearchResultsListForm searchForm = new SearchResultsListForm(this, searchBox.Text);
+            Cursor = Cursors.WaitCursor;
+            var searchForm = new SearchResultsListForm(this, searchBox.Text);
             searchForm.ShowDialog();
             searchBox.Text = "";
         }
 
-        
-        private void button1_Click(object sender, EventArgs e)
-        {
-            
-        }
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            db = new SQLiteDatabase();
+            _db = new SqLiteDatabase();
             if (File.Exists(@"tvdb.db"))
             {
-                updateShowList();
+                UpdateShowList();
             }
             else 
             {
-                createDatabase();
+                CreateDatabase();
             }
-            checkUpdate(); 
+            CheckUpdate(); 
 
         }
 
@@ -94,12 +83,11 @@ namespace TVDb
             public string id {get; set;}
         }*/
 
-        private void checkUpdate()
+        private void CheckUpdate()
         {
-            DataTable dt;
-            String query = "SELECT * FROM series";
-            dt = db.GetDataTable(query);
-            List<string> shows = new List<string>();
+            const string query = "SELECT * FROM series";
+            DataTable dt = _db.GetDataTable(query);
+            var shows = new List<string>();
             for (int i = 0; i < dt.Rows.Count; i++)
             {
                 DataRow drow = dt.Rows[i];
@@ -111,7 +99,7 @@ namespace TVDb
                  }
             }
             if(shows.Count > 0){
-                StringBuilder b = new StringBuilder();
+                var b = new StringBuilder();
                 for (int i = 0; i < shows.Count; i++ )
                 {
                     if (i != shows.Count - 1)
@@ -124,24 +112,22 @@ namespace TVDb
 
         }
 
-        private void createDatabase() {
-            
-                String CREATE_TABLE = "CREATE TABLE series (_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, series_name TEXT, series_id INTEGER, language TEXT, banner_local TEXT, network TEXT, first_aired TEXT, imdb_id TEXT, banner_url TEXT, overview TEXT, rating DOUBLE, runtime INTEGER, status TEXT, fanart_url TEXT, fanart_local TEXT, poster_url TEXT, poster_local TEXT)";
-                try
+        private void CreateDatabase()
+        {
+            const string createTable = "CREATE TABLE series (_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, series_name TEXT, series_id INTEGER, language TEXT, banner_local TEXT, network TEXT, first_aired TEXT, imdb_id TEXT, banner_url TEXT, overview TEXT, rating DOUBLE, runtime INTEGER, status TEXT, fanart_url TEXT, fanart_local TEXT, poster_url TEXT, poster_local TEXT)";
+            try
                 {
-                    db.createTable(CREATE_TABLE);
+                    _db.CreateTable(createTable);
                 }
                 catch (Exception crap)
                 {
                     MessageBox.Show(crap.Message);
                 }
-            
         }
 
-        public void updateShowList() {
-            DataTable dt;
-            String query = "SELECT * FROM series";
-            dt = db.GetDataTable(query);
+        public void UpdateShowList() {
+            const string query = "SELECT * FROM series";
+            DataTable dt = _db.GetDataTable(query);
 
             showsList.Items.Clear();
 
@@ -153,7 +139,7 @@ namespace TVDb
                 if (drow.RowState != DataRowState.Deleted)
                 {
                     // Define the list items
-                    ListViewItem lvi = new ListViewItem(drow["series_name"].ToString());
+                    var lvi = new ListViewItem(drow["series_name"].ToString());
 
                     lvi.SubItems.Add(drow["first_aired"].ToString());
                     lvi.SubItems.Add(drow["network"].ToString());
@@ -166,17 +152,17 @@ namespace TVDb
                     // Add the list items to the ListView
                     if (Properties.Settings.Default.ShowsToDisplay == "Ended" && drow["status"].ToString() == "Ended")
                     {
-                        if(drow["hide_from_list"].ToString() == "False" || Properties.Settings.Default.ShowHidden == true)
+                        if(drow["hide_from_list"].ToString() == "False" || Properties.Settings.Default.ShowHidden)
                         showsList.Items.Add(lvi);
                     }
                     else if (Properties.Settings.Default.ShowsToDisplay == "Continuing" && drow["status"].ToString() == "Continuing")
                     {
-                        if (drow["hide_from_list"].ToString() == "False" || Properties.Settings.Default.ShowHidden == true)
+                        if (drow["hide_from_list"].ToString() == "False" || Properties.Settings.Default.ShowHidden)
                         showsList.Items.Add(lvi);
                     }
                     else if (Properties.Settings.Default.ShowsToDisplay == "All")
                     {
-                        if (drow["hide_from_list"].ToString() == "False" || Properties.Settings.Default.ShowHidden == true)
+                        if (drow["hide_from_list"].ToString() == "False" || Properties.Settings.Default.ShowHidden)
                         showsList.Items.Add(lvi);
                     }
                     
@@ -187,12 +173,11 @@ namespace TVDb
             }
         }
 
-        public void updateEpisodesList(string tableName)
+        public void UpdateEpisodesList(string tableName)
         {
-            DataTable dt;
             String query = "SELECT * FROM " + tableName;
-            dt = db.GetDataTable(query);
-            List<EpisodeListEntry> e = new List<EpisodeListEntry>();
+            DataTable dt = _db.GetDataTable(query);
+            var e = new List<EpisodeListEntry>();
             for (int i = 0; i < dt.Rows.Count; i++)
             {
                 DataRow drow = dt.Rows[i];
@@ -201,18 +186,15 @@ namespace TVDb
                 }
             }
             e.Reverse();
-            this.objectListView1.SetObjects(e);
+            objectListView1.SetObjects(e);
         }
         
         private void showsList_SelectedIndexChanged(object sender, EventArgs e)
         {
-            var index = showsList.SelectedIndices;
-
             if (showsList.SelectedItems.Count > 0)
             {
-                DataTable dt;
-                String query = "SELECT * FROM series WHERE series_name = \""+showsList.SelectedItems[0].SubItems[0].Text+"\"";
-                dt = db.GetDataTable(query);
+                string query = "SELECT * FROM series WHERE series_name = \""+showsList.SelectedItems[0].SubItems[0].Text+"\"";
+                DataTable dt = _db.GetDataTable(query);
                 DataRow drow = dt.Rows[0];
                 overview.Text = drow["overview"].ToString();
                 try
@@ -223,38 +205,27 @@ namespace TVDb
                     banner.Image = Resources.icon1;
                     Console.WriteLine(exc.Message);
                 }
-                updateEpisodesList("episodes_"+showsList.SelectedItems[0].SubItems[6].Text);
+                UpdateEpisodesList("episodes_"+showsList.SelectedItems[0].SubItems[6].Text);
             }
         }
 
-        private void first_aired_Click(object sender, EventArgs e)
-        {
-
-        }
 
         private void showsList_ColumnClick(object sender, ColumnClickEventArgs e)
         {
-            if (e.Column == lvwColumnSorter.SortColumn)
+            if (e.Column == _lvwColumnSorter.SortColumn)
             {
                 // Reverse the current sort direction for this column.
-                if (lvwColumnSorter.Order == SortOrder.Ascending)
-                {
-                    lvwColumnSorter.Order = SortOrder.Descending;
-                }
-                else
-                {
-                    lvwColumnSorter.Order = SortOrder.Ascending;
-                }
+                _lvwColumnSorter.Order = _lvwColumnSorter.Order == SortOrder.Ascending ? SortOrder.Descending : SortOrder.Ascending;
             }
             else
             {
                 // Set the column number that is to be sorted; default to ascending.
-                lvwColumnSorter.SortColumn = e.Column;
-                lvwColumnSorter.Order = SortOrder.Ascending;
+                _lvwColumnSorter.SortColumn = e.Column;
+                _lvwColumnSorter.Order = SortOrder.Ascending;
             }
 
             // Perform the sort with these new sort options.
-            this.showsList.Sort();
+            showsList.Sort();
         }
 
         
@@ -270,18 +241,18 @@ namespace TVDb
             {
                 if (DialogResult.Yes == MessageBox.Show("Are you sure?","", MessageBoxButtons.YesNo))
                 {
-                    SQLiteDatabase db = new SQLiteDatabase();
+                    
                     try
                     {
-                        db.Delete("series", "series_id=" + showsList.SelectedItems[0].SubItems[6].Text);
-                        db.ExecuteNonQuery("DROP TABLE IF EXISTS episodes_" + showsList.SelectedItems[0].SubItems[6].Text);
-                        db.ExecuteNonQuery("DROP TABLE IF EXISTS arts_" + showsList.SelectedItems[0].SubItems[6].Text);
+                        _db.Delete("series", "series_id=" + showsList.SelectedItems[0].SubItems[6].Text);
+                        _db.ExecuteNonQuery("DROP TABLE IF EXISTS episodes_" + showsList.SelectedItems[0].SubItems[6].Text);
+                        _db.ExecuteNonQuery("DROP TABLE IF EXISTS arts_" + showsList.SelectedItems[0].SubItems[6].Text);
                     }
                     catch (Exception ex)
                     {
                         MessageBox.Show(ex.Message);
                     }
-                    updateShowList();
+                    UpdateShowList();
                 }
                 
             }
@@ -297,10 +268,7 @@ namespace TVDb
             {
                 return 1;
             }
-            else {
-                return 0;
-            }
-            
+            return 0;
         }
 
         private void objectListView1_ItemCheck_1(object sender, ItemCheckEventArgs e)
@@ -309,7 +277,7 @@ namespace TVDb
 
             try
             {
-                db.ExecuteNonQuery("UPDATE episodes_" + showsList.SelectedItems[0].SubItems[6].Text + " SET watched=" + chk + " WHERE episode_id=" + objectListView1.Items[e.Index].SubItems[5].Text);
+                _db.ExecuteNonQuery("UPDATE episodes_" + showsList.SelectedItems[0].SubItems[6].Text + " SET watched=" + chk + " WHERE episode_id=" + objectListView1.Items[e.Index].SubItems[5].Text);
             }
             catch (Exception ex)
             {
@@ -325,16 +293,12 @@ namespace TVDb
             {
                 if (DialogResult.Yes == MessageBox.Show("Delete All Items From Database?\nThis cannot be undone!", "Are you 100% sure?", MessageBoxButtons.YesNo))
                 {
-                    this.Cursor = System.Windows.Forms.Cursors.WaitCursor;
-                    if (db.ClearDB())
-                    {
-                        MessageBox.Show("Database Cleared Successfuly");
-                    }
-                    else {
-                        MessageBox.Show("Something Went Wrong\nDatabase might be corupted!");
-                    }
-                    updateShowList();
-                    this.Cursor = System.Windows.Forms.Cursors.Default;
+                    Cursor = Cursors.WaitCursor;
+                    MessageBox.Show(_db.ClearDb()
+                                        ? "Database Cleared Successfuly"
+                                        : "Something Went Wrong\nDatabase might be corupted!");
+                    UpdateShowList();
+                   Cursor = Cursors.Default;
                 }
             }
         }
@@ -352,16 +316,15 @@ namespace TVDb
 
         private void posterToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            ArtViewer art = new ArtViewer(showsList.SelectedItems[0].SubItems[6].Text, showsList.SelectedItems[0].Text);
+            var art = new ArtViewer(showsList.SelectedItems[0].SubItems[6].Text, showsList.SelectedItems[0].Text);
             art.Show();
         }
 
         private void objectListView1_DoubleClick(object sender, EventArgs e)
         {
-            DataTable dt;
-            String query = "SELECT * FROM episodes_" + showsList.SelectedItems[0].SubItems[6].Text + " WHERE episode_id=" + objectListView1.SelectedItems[0].SubItems[5].Text;
-            dt = db.GetDataTable(query);
-            DataRow drow = dt.Rows[0];
+            var query = "SELECT * FROM episodes_" + showsList.SelectedItems[0].SubItems[6].Text + " WHERE episode_id=" + objectListView1.SelectedItems[0].SubItems[5].Text;
+            var dt = _db.GetDataTable(query);
+            var drow = dt.Rows[0];
             MessageBox.Show(drow["overview"].ToString());
             
         }
@@ -379,22 +342,19 @@ namespace TVDb
 
         private void markAll_Click(object sender, EventArgs e)
         {
-            this.Cursor = System.Windows.Forms.Cursors.WaitCursor;
-            this.objectListView1.CheckedObjectsEnumerable = this.objectListView1.Objects;
-            this.Cursor = System.Windows.Forms.Cursors.Default;
+            Cursor = Cursors.WaitCursor;
+            objectListView1.CheckedObjectsEnumerable = objectListView1.Objects;
+            Cursor = Cursors.Default;
         }
 
         private void markAllSeason_Click(object sender, EventArgs e)
         {
-            this.Cursor = System.Windows.Forms.Cursors.WaitCursor;
-            foreach (OLVListItem olvi in objectListView1.Items)
+            Cursor = Cursors.WaitCursor;
+            foreach (var olvi in objectListView1.Items.Cast<OLVListItem>().Where(olvi => olvi.SubItems[1].Text == objectListView1.SelectedItems[0].SubItems[1].Text))
             {
-                if (olvi.SubItems[1].Text == objectListView1.SelectedItems[0].SubItems[1].Text)
-                {
-                    olvi.Checked = true;
-                }
+                olvi.Checked = true;
             }
-            this.Cursor = System.Windows.Forms.Cursors.Default;
+            Cursor = Cursors.Default;
       }
 
         private void backupDatabaseToolStripMenuItem_Click(object sender, EventArgs e)
@@ -418,31 +378,30 @@ namespace TVDb
             if (DialogResult.Yes == MessageBox.Show("This will overwrite curent database file!\nContinue?", "Restore Database?", MessageBoxButtons.YesNo))
             {
                 File.Copy(openFileDialog1.FileName, @"tvdb.db", true);
-                updateShowList();
+                UpdateShowList();
             }
         }
 
         private void upcomingEpisodesToolStripMenuItem_Click(object sender, EventArgs e)
         {
 
-            this.Cursor = System.Windows.Forms.Cursors.WaitCursor;
+            Cursor = Cursors.WaitCursor;
             new Agenda(this).Show();
         }
 
         private void hideFromListToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            DataTable dt;
-            String query = "SELECT * FROM series WHERE series_id=" + showsList.SelectedItems[0].SubItems[6].Text;
-            dt = db.GetDataTable(query);
-            DataRow drow = dt.Rows[0];
+            var query = "SELECT * FROM series WHERE series_id=" + showsList.SelectedItems[0].SubItems[6].Text;
+            var dt = _db.GetDataTable(query);
+            var drow = dt.Rows[0];
             try
             {
                 if (drow["hide_from_list"].ToString() == "False")
-                    db.ExecuteNonQuery("UPDATE series SET hide_from_list=1 WHERE series_id=" + showsList.SelectedItems[0].SubItems[6].Text);
+                    _db.ExecuteNonQuery("UPDATE series SET hide_from_list=1 WHERE series_id=" + showsList.SelectedItems[0].SubItems[6].Text);
                 else
-                    db.ExecuteNonQuery("UPDATE series SET hide_from_list=0 WHERE series_id=" + showsList.SelectedItems[0].SubItems[6].Text);
+                    _db.ExecuteNonQuery("UPDATE series SET hide_from_list=0 WHERE series_id=" + showsList.SelectedItems[0].SubItems[6].Text);
                 
-                updateShowList();
+                UpdateShowList();
             }
             catch (Exception ex)
             {
@@ -452,37 +411,28 @@ namespace TVDb
 
         private void contextMenuStrip1_Opening(object sender, CancelEventArgs e)
         {
-            DataTable dt;
-            String query = "SELECT * FROM series WHERE series_id=" + showsList.SelectedItems[0].SubItems[6].Text;
-            dt = db.GetDataTable(query);
-            DataRow drow = dt.Rows[0];
-            if (drow["hide_from_list"].ToString() == "False")
-                hideFromListToolStripMenuItem.Text = "Hide From List";
-            else
-                hideFromListToolStripMenuItem.Text = "Show in List";
+            var query = "SELECT * FROM series WHERE series_id=" + showsList.SelectedItems[0].SubItems[6].Text;
+            var dt = _db.GetDataTable(query);
+            var drow = dt.Rows[0];
+            hideFromListToolStripMenuItem.Text = drow["hide_from_list"].ToString() == "False" ? "Hide From List" : "Show in List";
 
-            if (drow["ignore_agenda"].ToString() == "False")
-                ignoreInAgendaToolStripMenuItem.Text = "Exclude from Agenda";
-            else
-                ignoreInAgendaToolStripMenuItem.Text = "Include in Agenda";
-            
+            ignoreInAgendaToolStripMenuItem.Text = drow["ignore_agenda"].ToString() == "False" ? "Exclude from Agenda" : "Include in Agenda";
             
         }
 
         private void ignoreInAgendaToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            DataTable dt;
-            String query = "SELECT * FROM series WHERE series_id=" + showsList.SelectedItems[0].SubItems[6].Text;
-            dt = db.GetDataTable(query);
-            DataRow drow = dt.Rows[0];
+            var query = "SELECT * FROM series WHERE series_id=" + showsList.SelectedItems[0].SubItems[6].Text;
+            var dt = _db.GetDataTable(query);
+            var drow = dt.Rows[0];
             try
             {
                 if (drow["hide_from_list"].ToString() == "False")
-                    db.ExecuteNonQuery("UPDATE series SET ignore_agenda=1 WHERE series_id=" + showsList.SelectedItems[0].SubItems[6].Text);
+                    _db.ExecuteNonQuery("UPDATE series SET ignore_agenda=1 WHERE series_id=" + showsList.SelectedItems[0].SubItems[6].Text);
                 else
-                    db.ExecuteNonQuery("UPDATE series SET ignore_agenda=0 WHERE series_id=" + showsList.SelectedItems[0].SubItems[6].Text);
+                    _db.ExecuteNonQuery("UPDATE series SET ignore_agenda=0 WHERE series_id=" + showsList.SelectedItems[0].SubItems[6].Text);
                 
-                updateShowList();
+                UpdateShowList();
             }
             catch (Exception ex)
             {
@@ -516,10 +466,10 @@ namespace TVDb
 
         private void updateToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            this.Cursor = System.Windows.Forms.Cursors.WaitCursor;
+            Cursor = Cursors.WaitCursor;
             UpdateShows(showsList.SelectedItems[0].SubItems[6].Text);
-            this.Cursor = System.Windows.Forms.Cursors.Default;
-            updateEpisodesList("episodes_" + showsList.SelectedItems[0].SubItems[6].Text);
+            Cursor = Cursors.Default;
+            UpdateEpisodesList("episodes_" + showsList.SelectedItems[0].SubItems[6].Text);
         }
 
         private double getRating(XElement e)
@@ -529,37 +479,36 @@ namespace TVDb
             {
                 return (double)e.Element("Rating");
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return 0.0;
             }
         }
 
         private void UpdateShows(string sId) {
-            string seriesId = sId;
-            DataTable dt;
-            String query = "SELECT * FROM series WHERE series_id=" + seriesId;
-            dt = db.GetDataTable(query);
-            DataRow drow = dt.Rows[0];
-            if (!System.IO.Directory.Exists("temp"))
+            var seriesId = sId;
+            var query = "SELECT * FROM series WHERE series_id=" + seriesId;
+            var dt = _db.GetDataTable(query);
+            var drow = dt.Rows[0];
+            if (!Directory.Exists("temp"))
             {
-                System.IO.Directory.CreateDirectory("temp");
+                Directory.CreateDirectory("temp");
             }
-            if (!System.IO.Directory.Exists("res"))
+            if (!Directory.Exists("res"))
             {
-                System.IO.Directory.CreateDirectory("res");
+                Directory.CreateDirectory("res");
             }
 
-            WebClient Client = new WebClient();
-            Client.DownloadFile("http://thetvdb.com/api/" + Constants.api_key + "/series/" + seriesId + "/all/" + drow["language"].ToString() + ".zip",
+            var client = new WebClient();
+            client.DownloadFile("http://thetvdb.com/api/" + Constants.ApiKey + "/series/" + seriesId + "/all/" + drow["language"].ToString() + ".zip",
                 @"temp/tmp.zip");
 
-            using (ZipFile zip = ZipFile.Read("temp/tmp.zip"))
+            using (var zip = ZipFile.Read("temp/tmp.zip"))
             {
                 zip.ExtractAll("temp/");
             }
 
-            XDocument doc = XDocument.Load("temp/en.xml");
+            var doc = XDocument.Load("temp/en.xml");
 
             // var names = doc.Descendants("Series");
             var names = from ele in doc.Descendants("Episode")
@@ -580,14 +529,14 @@ namespace TVDb
                 try
                 {
 
-                    if (db.EpisodeExists(seriesId, n.episodeId.ToString()))
+                    if (_db.EpisodeExists(seriesId, n.episodeId.ToString()))
                     {
-                        db.UpdateEpisode(seriesId, n.episodeId.ToString(), n.episodeName, n.overview, n.firstAired, n.rating.ToString());
+                        _db.UpdateEpisode(seriesId, n.episodeId.ToString(), n.episodeName, n.overview, n.firstAired, n.rating.ToString());
                     }
                     else
                     {
-                        EpisodeDatabaseEntry edb = new EpisodeDatabaseEntry(n.episodeName, n.episode, n.season, n.rating, n.firstAired, n.imdbId, n.overview, false, n.episodeId);
-                        db.InsertEpisode("episodes_" + seriesId, edb);
+                        var edb = new EpisodeDatabaseEntry(n.episodeName, n.episode, n.season, n.rating, n.firstAired, n.imdbId, n.overview, false, n.episodeId);
+                        _db.InsertEpisode("episodes_" + seriesId, edb);
                     }
                 }
                 catch (Exception ex)
@@ -596,55 +545,47 @@ namespace TVDb
                 }
 
             }
-            db.UpdateDate(seriesId, DateTime.Now.ToString());
+            _db.UpdateDate(seriesId, DateTime.Now.ToString());
                 
             Directory.Delete(@"temp", true);
         }
 
         private void updateAllShowsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (backgroundWorker1.IsBusy != true)
-            {
-                this.Cursor = System.Windows.Forms.Cursors.WaitCursor;
-                alert = new AlertDialog();
-                alert.Show();
-                // Start the asynchronous operation.
-                backgroundWorker1.RunWorkerAsync();
-            }
-            
-            
-            
-            
+            if (backgroundWorker1.IsBusy) return;
+            Cursor = Cursors.WaitCursor;
+            _alert = new AlertDialog();
+            _alert.Show();
+            // Start the asynchronous operation.
+            backgroundWorker1.RunWorkerAsync();
         }
 
         private void backgroundWorker1_DoWork(object sender, DoWorkEventArgs e)
         {
             
-            BackgroundWorker worker = sender as BackgroundWorker;
-            DataTable dt;
-            String query = "SELECT * FROM series";
-            dt = db.GetDataTable(query);
-            int count = dt.Rows.Count;
-            for (int i = 0; i < count; i++)
+            var worker = sender as BackgroundWorker;
+            const string query = "SELECT * FROM series";
+            var dt = _db.GetDataTable(query);
+            var count = dt.Rows.Count;
+            for (var i = 0; i < count; i++)
             {
-                worker.ReportProgress((int)((double)(i + 1) / (double)count * 100.0), (dt.Rows[i])["series_name"].ToString() +" "+ (i+1) + "/" + count);
+                if (worker != null)
+                    worker.ReportProgress((int)((i + 1) / (double)count * 100.0), (dt.Rows[i])["series_name"].ToString() +" "+ (i+1) + "/" + count);
                 UpdateShows((dt.Rows[i])["series_id"].ToString());
             }
-            
-            
         }
 
         private void backgroundWorker1_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
-            alert.setLabels("Please wait", "Updating:", (string)e.UserState);
-            alert.setProgress(e.ProgressPercentage);
+            _alert.SetLabels("Please wait", "Updating:", (string)e.UserState);
+            _alert.SetProgress(e.ProgressPercentage);
         }
 
         private void backgroundWorker1_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            alert.Close();
-            this.Cursor = System.Windows.Forms.Cursors.Default;
-            updateEpisodesList("episodes_" + showsList.SelectedItems[0].SubItems[6].Text);
+            _alert.Close();
+            Cursor = Cursors.Default;
+            UpdateEpisodesList("episodes_" + showsList.SelectedItems[0].SubItems[6].Text);
         }
 
     }

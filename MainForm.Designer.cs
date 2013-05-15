@@ -267,7 +267,7 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.objectListView1.CheckBoxes = true;
-            this.objectListView1.CheckedAspectName = "watched";
+            this.objectListView1.CheckedAspectName = "Watched";
             this.objectListView1.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.olvColumn2,
             this.olvColumn4,
@@ -290,7 +290,7 @@
             // 
             // olvColumn2
             // 
-            this.olvColumn2.AspectName = "episodeName";
+            this.olvColumn2.AspectName = "EpisodeName";
             this.olvColumn2.CellPadding = null;
             this.olvColumn2.CheckBoxes = true;
             this.olvColumn2.Sortable = false;
@@ -299,7 +299,7 @@
             // 
             // olvColumn4
             // 
-            this.olvColumn4.AspectName = "season";
+            this.olvColumn4.AspectName = "Season";
             this.olvColumn4.CellPadding = null;
             this.olvColumn4.DisplayIndex = 3;
             this.olvColumn4.Sortable = false;
@@ -307,14 +307,14 @@
             // 
             // olvColumn1
             // 
-            this.olvColumn1.AspectName = "episode";
+            this.olvColumn1.AspectName = "Episode";
             this.olvColumn1.CellPadding = null;
             this.olvColumn1.Sortable = false;
             this.olvColumn1.Text = "Episode";
             // 
             // olvColumn3
             // 
-            this.olvColumn3.AspectName = "firstAired";
+            this.olvColumn3.AspectName = "FirstAired";
             this.olvColumn3.CellPadding = null;
             this.olvColumn3.DisplayIndex = 1;
             this.olvColumn3.Sortable = false;
@@ -322,14 +322,14 @@
             // 
             // olvColumn5
             // 
-            this.olvColumn5.AspectName = "rating";
+            this.olvColumn5.AspectName = "Rating";
             this.olvColumn5.CellPadding = null;
             this.olvColumn5.Sortable = false;
             this.olvColumn5.Text = "Rating";
             // 
             // olvColumn6
             // 
-            this.olvColumn6.AspectName = "episodeId";
+            this.olvColumn6.AspectName = "EpisodeId";
             this.olvColumn6.CellPadding = null;
             this.olvColumn6.Sortable = false;
             this.olvColumn6.Text = "Episode ID";
